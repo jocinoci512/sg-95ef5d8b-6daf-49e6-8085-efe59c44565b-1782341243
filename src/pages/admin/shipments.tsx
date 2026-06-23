@@ -81,7 +81,13 @@ function AdminShipmentsContent() {
   const [formData, setFormData] = useState({
     customerId: "",
     pickupAddress: "",
+    pickupCity: "",
+    pickupState: "",
+    pickupZip: "",
     deliveryAddress: "",
+    deliveryCity: "",
+    deliveryState: "",
+    deliveryZip: "",
     vehicleType: "",
     status: "pending_pickup",
     estimatedDeliveryDate: "",
@@ -172,7 +178,13 @@ function AdminShipmentsContent() {
         tracking_number: generateTrackingNumber(),
         customer_id: formData.customerId,
         pickup_address: formData.pickupAddress,
+        pickup_city: formData.pickupCity,
+        pickup_state: formData.pickupState,
+        pickup_zip: formData.pickupZip,
         delivery_address: formData.deliveryAddress,
+        delivery_city: formData.deliveryCity,
+        delivery_state: formData.deliveryState,
+        delivery_zip: formData.deliveryZip,
         vehicle_type: formData.vehicleType,
         status: formData.status,
         estimated_delivery_date: formData.estimatedDeliveryDate || null,
@@ -206,7 +218,13 @@ function AdminShipmentsContent() {
         .update({
           customer_id: formData.customerId,
           pickup_address: formData.pickupAddress,
+          pickup_city: formData.pickupCity,
+          pickup_state: formData.pickupState,
+          pickup_zip: formData.pickupZip,
           delivery_address: formData.deliveryAddress,
+          delivery_city: formData.deliveryCity,
+          delivery_state: formData.deliveryState,
+          delivery_zip: formData.deliveryZip,
           vehicle_type: formData.vehicleType,
           status: formData.status,
           estimated_delivery_date: formData.estimatedDeliveryDate || null,
@@ -265,7 +283,13 @@ function AdminShipmentsContent() {
     setFormData({
       customerId: "",
       pickupAddress: "",
+      pickupCity: "",
+      pickupState: "",
+      pickupZip: "",
       deliveryAddress: "",
+      deliveryCity: "",
+      deliveryState: "",
+      deliveryZip: "",
       vehicleType: "",
       status: "pending_pickup",
       estimatedDeliveryDate: "",
@@ -392,8 +416,42 @@ function AdminShipmentsContent() {
                   <div className="space-y-2">
                     <Label>Pickup Address *</Label>
                     <Input
+                      placeholder="Street address"
                       value={formData.pickupAddress}
                       onChange={(e) => setFormData({ ...formData, pickupAddress: e.target.value })}
+                      required
+                      className="bg-background"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Pickup City *</Label>
+                      <Input
+                        value={formData.pickupCity}
+                        onChange={(e) => setFormData({ ...formData, pickupCity: e.target.value })}
+                        required
+                        className="bg-background"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Pickup State *</Label>
+                      <Input
+                        placeholder="e.g., CA"
+                        value={formData.pickupState}
+                        onChange={(e) => setFormData({ ...formData, pickupState: e.target.value })}
+                        required
+                        className="bg-background"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Pickup ZIP Code *</Label>
+                    <Input
+                      value={formData.pickupZip}
+                      onChange={(e) => setFormData({ ...formData, pickupZip: e.target.value })}
                       required
                       className="bg-background"
                     />
@@ -402,8 +460,42 @@ function AdminShipmentsContent() {
                   <div className="space-y-2">
                     <Label>Delivery Address *</Label>
                     <Input
+                      placeholder="Street address"
                       value={formData.deliveryAddress}
                       onChange={(e) => setFormData({ ...formData, deliveryAddress: e.target.value })}
+                      required
+                      className="bg-background"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Delivery City *</Label>
+                      <Input
+                        value={formData.deliveryCity}
+                        onChange={(e) => setFormData({ ...formData, deliveryCity: e.target.value })}
+                        required
+                        className="bg-background"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Delivery State *</Label>
+                      <Input
+                        placeholder="e.g., NY"
+                        value={formData.deliveryState}
+                        onChange={(e) => setFormData({ ...formData, deliveryState: e.target.value })}
+                        required
+                        className="bg-background"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Delivery ZIP Code *</Label>
+                    <Input
+                      value={formData.deliveryZip}
+                      onChange={(e) => setFormData({ ...formData, deliveryZip: e.target.value })}
                       required
                       className="bg-background"
                     />
