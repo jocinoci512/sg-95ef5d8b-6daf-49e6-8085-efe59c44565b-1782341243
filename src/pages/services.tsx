@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/SEO";
 import Link from "next/link";
 import {
@@ -14,10 +16,19 @@ import {
   Package,
   Container,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  Search
 } from "lucide-react";
 
 export default function Services() {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredServices = services.filter(service =>
+    service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.features.some(feature => feature.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
     <>
       <SEO
@@ -44,45 +55,65 @@ export default function Services() {
 
           <section className="py-20">
             <div className="container">
-              <div className="grid gap-12">
-                {services.map((service, index) => (
-                  <Card key={service.title} className="p-8 border-border hover:border-primary/50 transition-colors">
-                    <div className="grid md:grid-cols-[auto,1fr] gap-8">
-                      <div className="flex items-start">
-                        <div className="w-16 h-16 rounded-sm bg-primary/10 border-2 border-primary flex items-center justify-center shrink-0">
-                          <service.icon className="h-8 w-8 text-primary" />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h2 className="text-2xl font-bold mb-3">{service.title}</h2>
-                        <p className="text-muted-foreground mb-6 leading-relaxed">
-                          {service.description}
-                        </p>
-                        
-                        <div className="mb-6">
-                          <h3 className="font-mono font-bold mb-3">Key Features</h3>
-                          <ul className="grid md:grid-cols-2 gap-3">
-                            {service.features.map((feature) => (
-                              <li key={feature} className="flex items-start gap-2 text-sm">
-                                <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                                <span className="text-muted-foreground">{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        <Link href="/quote">
-                          <Button className="font-mono">
-                            Get Quote
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+              <div className="mb-8 max-w-xl">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search services..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-background"
+                  />
+                </div>
               </div>
+
+              {filteredServices.length === 0 ? (
+                <Card className="p-12 text-center border-border">
+                  <p className="text-muted-foreground">
+                    No services match your search. Try different keywords.
+                  </p>
+                </Card>
+              ) : (
+                <div className="grid gap-12">
+                  {filteredServices.map((service, index) => (
+                    <Card key={service.title} className="p-8 border-border hover:border-primary/50 transition-colors">
+                      <div className="grid md:grid-cols-[auto,1fr] gap-8">
+                        <div className="flex items-start">
+                          <div className="w-16 h-16 rounded-sm bg-primary/10 border-2 border-primary flex items-center justify-center shrink-0">
+                            <service.icon className="h-8 w-8 text-primary" />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h2 className="text-2xl font-bold mb-3">{service.title}</h2>
+                          <p className="text-muted-foreground mb-6 leading-relaxed">
+                            {service.description}
+                          </p>
+                          
+                          <div className="mb-6">
+                            <h3 className="font-mono font-bold mb-3">Key Features</h3>
+                            <ul className="grid md:grid-cols-2 gap-3">
+                              {service.features.map((feature) => (
+                                <li key={feature} className="flex items-start gap-2 text-sm">
+                                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                                  <span className="text-muted-foreground">{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <Link href="/quote">
+                            <Button className="font-mono">
+                              Get Quote
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
 

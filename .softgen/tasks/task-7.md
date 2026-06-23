@@ -1,6 +1,6 @@
 ---
 title: Quote Request Email Notifications
-status: todo
+status: in_progress
 priority: high
 type: feature
 tags: [edge-function, email, notifications]

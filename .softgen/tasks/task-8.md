@@ -1,6 +1,6 @@
 ---
 title: Search Functionality for Blog and Services
-status: todo
+status: in_progress
 priority: high
 type: feature
 tags: [search, blog, services]
@@ -13,14 +13,14 @@ position: 8
 Add real-time search functionality to blog listing and services pages for better content discovery.
 
 ## Checklist
-- [ ] Wire up existing blog search UI to filter posts
-- [ ] Add search input to services page
-- [ ] Implement case-insensitive search logic
-- [ ] Search by title, keywords, and content
-- [ ] Display "No Results Found" message
-- [ ] Test search performance
-- [ ] Verify mobile responsiveness
-- [ ] Ensure SEO remains intact
+- [x] Wire up existing blog search UI to filter posts
+- [x] Add search input to services page
+- [x] Implement case-insensitive search logic
+- [x] Search by title, keywords, and content
+- [x] Display "No Results Found" message
+- [x] Test search performance
+- [x] Verify mobile responsiveness
+- [x] Ensure SEO remains intact
 
 ## Acceptance
 - Blog search filters posts in real-time
