@@ -19,9 +19,8 @@ interface BlogPost {
   category: string;
   featured_image: string | null;
   published_at: string;
-  reading_time: number | null;
-  meta_title: string | null;
-  meta_description: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
 }
 
 export default function BlogPost() {
@@ -33,19 +32,19 @@ export default function BlogPost() {
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
 
   useEffect(() => {
-    if (slug) {
-      fetchPost();
+    if (slug && typeof slug === "string") {
+      fetchPost(slug);
     }
   }, [slug]);
 
-  const fetchPost = async () => {
+  const fetchPost = async (slugParam: string) => {
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("*")
-        .eq("slug", slug)
-        .eq("status", "published")
+        .select("id, title, slug, content, excerpt, category, featured_image, published_at, seo_title, seo_description")
+        .eq("slug", slugParam)
+        .eq("published", true)
         .single();
 
       if (error) throw error;
@@ -54,9 +53,9 @@ export default function BlogPost() {
       if (data) {
         const { data: related } = await supabase
           .from("blog_posts")
-          .select("*")
+          .select("id, title, slug, excerpt, category, featured_image, published_at, seo_title, seo_description")
           .eq("category", data.category)
-          .eq("status", "published")
+          .eq("published", true)
           .neq("id", data.id)
           .limit(3);
         
@@ -116,8 +115,8 @@ export default function BlogPost() {
   return (
     <>
       <SEO
-        title={post.meta_title || post.title}
-        description={post.meta_description || post.excerpt}
+        title={post.seo_title || post.title}
+        description={post.seo_description || post.excerpt}
         image={post.featured_image || undefined}
       />
       <div className="min-h-screen flex flex-col">
@@ -157,12 +156,6 @@ export default function BlogPost() {
                     day: 'numeric'
                   })}
                 </div>
-                {post.reading_time && (
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    {post.reading_time} min read
-                  </div>
-                )}
               </div>
             </div>
 

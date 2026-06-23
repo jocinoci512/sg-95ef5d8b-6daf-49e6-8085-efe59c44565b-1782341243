@@ -18,7 +18,8 @@ interface BlogPost {
   category: string;
   featured_image: string | null;
   published_at: string;
-  reading_time: number | null;
+  seo_title: string | null;
+  seo_description: string | null;
 }
 
 export default function Blog() {
@@ -36,8 +37,8 @@ export default function Blog() {
     try {
       let query = supabase
         .from("blog_posts")
-        .select("*")
-        .eq("status", "published")
+        .select("id, title, slug, excerpt, category, featured_image, published_at, seo_title, seo_description")
+        .eq("published", true)
         .order("published_at", { ascending: false });
 
       if (selectedCategory) {
@@ -144,11 +145,6 @@ export default function Blog() {
                             <Badge variant="outline" className="font-mono text-xs">
                               {post.category}
                             </Badge>
-                            {post.reading_time && (
-                              <span className="text-xs text-muted-foreground font-data">
-                                {post.reading_time} min read
-                              </span>
-                            )}
                           </div>
                           <h2 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors line-clamp-2">
                             {post.title}

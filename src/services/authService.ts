@@ -33,8 +33,8 @@ export const authService = {
       full_name: data.fullName,
       phone: data.phone || null,
       address: data.address || null,
-      role: "customer",
-      account_status: "active",
+      role: "customer" as const,
+      account_status: "active" as const,
     });
 
     if (profileError) throw profileError;
