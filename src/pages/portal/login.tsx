@@ -35,7 +35,7 @@ export default function Login() {
         password: formData.password,
       });
 
-      const profile = await authService.getUserProfile(user.id);
+      const profile = await authService.getProfile(user.id);
       
       toast({
         title: "Login successful",
