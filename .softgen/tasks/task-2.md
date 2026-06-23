@@ -1,6 +1,6 @@
 ---
 title: Design System & Core Components
-status: in_progress
+status: done
 priority: urgent
 type: chore
 tags: [design, components]

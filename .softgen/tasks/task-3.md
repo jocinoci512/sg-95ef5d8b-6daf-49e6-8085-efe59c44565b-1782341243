@@ -16,11 +16,11 @@ Complete public-facing marketing website with all pages, tracking integration, q
 - [x] Home page with hero, services, stats, testimonials
 - [x] Services page with detailed service descriptions
 - [x] About page with mission, vision, values
-- [ ] Quote request page with comprehensive form
-- [ ] Contact page with form and company info
-- [ ] Track shipment page with real-time tracking
-- [ ] Blog listing page with categories
-- [ ] Blog post detail pages
+- [x] Quote request page with comprehensive form
+- [x] Contact page with form and company info
+- [x] Track shipment page with real-time tracking
+- [ ] Blog listing page with categories and search
+- [ ] Blog post detail pages with SEO
 
 ## Acceptance
 - All pages are mobile responsive
