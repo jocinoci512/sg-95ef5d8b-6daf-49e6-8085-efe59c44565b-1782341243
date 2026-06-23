@@ -34,7 +34,6 @@ export const authService = {
       phone: data.phone || null,
       address: data.address || null,
       role: "customer" as const,
-      account_status: "active" as const,
     });
 
     if (profileError) throw profileError;

@@ -23,13 +23,25 @@ interface BlogPost {
   seo_description: string | null;
 }
 
+interface RelatedPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: string;
+  featured_image: string | null;
+  published_at: string;
+  seo_title: string | null;
+  seo_description: string | null;
+}
+
 export default function BlogPost() {
   const router = useRouter();
   const { slug } = router.query;
   
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
-  const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
+  const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
 
   useEffect(() => {
     if (slug && typeof slug === "string") {
