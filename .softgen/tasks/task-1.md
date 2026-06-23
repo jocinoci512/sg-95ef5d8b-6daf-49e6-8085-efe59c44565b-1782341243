@@ -1,6 +1,6 @@
 ---
 title: Database Schema & Authentication Setup
-status: in_progress
+status: done
 priority: urgent
 type: feature
 tags: [database, auth, supabase]
@@ -22,7 +22,7 @@ Set up complete Supabase database schema with all tables for customers, shipment
 - [x] Create contact_inquiries table
 - [x] Set up RLS policies for all tables
 - [x] Configure auth with role-based access
-- [ ] Generate TypeScript types
+- [x] Generate TypeScript types
 
 ## Acceptance
 - All tables exist with proper relationships
