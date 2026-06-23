@@ -40,8 +40,15 @@ interface Shipment {
   tracking_number: string;
   customer_id: string;
   pickup_address: string;
+  pickup_city: string;
+  pickup_state: string;
+  pickup_zip: string;
   delivery_address: string;
+  delivery_city: string;
+  delivery_state: string;
+  delivery_zip: string;
   vehicle_type: string;
+  shipping_type: string;
   status: string;
   estimated_delivery_date: string | null;
   created_at: string;
@@ -89,6 +96,7 @@ function AdminShipmentsContent() {
     deliveryState: "",
     deliveryZip: "",
     vehicleType: "",
+    shippingType: "standard",
     status: "pending_pickup",
     estimatedDeliveryDate: "",
   });
@@ -142,8 +150,15 @@ function AdminShipmentsContent() {
           tracking_number,
           customer_id,
           pickup_address,
+          pickup_city,
+          pickup_state,
+          pickup_zip,
           delivery_address,
+          delivery_city,
+          delivery_state,
+          delivery_zip,
           vehicle_type,
+          shipping_type,
           status,
           estimated_delivery_date,
           created_at,
@@ -186,6 +201,7 @@ function AdminShipmentsContent() {
         delivery_state: formData.deliveryState,
         delivery_zip: formData.deliveryZip,
         vehicle_type: formData.vehicleType,
+        shipping_type: formData.shippingType,
         status: formData.status,
         estimated_delivery_date: formData.estimatedDeliveryDate || null,
       });
@@ -226,6 +242,7 @@ function AdminShipmentsContent() {
           delivery_state: formData.deliveryState,
           delivery_zip: formData.deliveryZip,
           vehicle_type: formData.vehicleType,
+          shipping_type: formData.shippingType,
           status: formData.status,
           estimated_delivery_date: formData.estimatedDeliveryDate || null,
         })
@@ -272,8 +289,15 @@ function AdminShipmentsContent() {
     setFormData({
       customerId: shipment.customer_id,
       pickupAddress: shipment.pickup_address,
+      pickupCity: shipment.pickup_city,
+      pickupState: shipment.pickup_state,
+      pickupZip: shipment.pickup_zip,
       deliveryAddress: shipment.delivery_address,
+      deliveryCity: shipment.delivery_city,
+      deliveryState: shipment.delivery_state,
+      deliveryZip: shipment.delivery_zip,
       vehicleType: shipment.vehicle_type,
+      shippingType: shipment.shipping_type,
       status: shipment.status,
       estimatedDeliveryDate: shipment.estimated_delivery_date || "",
     });
@@ -291,6 +315,7 @@ function AdminShipmentsContent() {
       deliveryState: "",
       deliveryZip: "",
       vehicleType: "",
+      shippingType: "standard",
       status: "pending_pickup",
       estimatedDeliveryDate: "",
     });
@@ -518,6 +543,24 @@ function AdminShipmentsContent() {
                         <SelectItem value="motorcycle">Motorcycle</SelectItem>
                         <SelectItem value="van">Van</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Shipping Type *</Label>
+                    <Select
+                      value={formData.shippingType}
+                      onValueChange={(value) => setFormData({ ...formData, shippingType: value })}
+                      required
+                    >
+                      <SelectTrigger className="bg-background">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="standard">Standard</SelectItem>
+                        <SelectItem value="expedited">Expedited</SelectItem>
+                        <SelectItem value="enclosed">Enclosed Carrier</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
