@@ -1,6 +1,6 @@
 ---
 title: Public Marketing Website
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [public-site, ui]
@@ -19,8 +19,8 @@ Complete public-facing marketing website with all pages, tracking integration, q
 - [x] Quote request page with comprehensive form
 - [x] Contact page with form and company info
 - [x] Track shipment page with real-time tracking
-- [ ] Blog listing page with categories and search
-- [ ] Blog post detail pages with SEO
+- [x] Blog listing page with categories and search
+- [x] Blog post detail pages with SEO
 
 ## Acceptance
 - All pages are mobile responsive
