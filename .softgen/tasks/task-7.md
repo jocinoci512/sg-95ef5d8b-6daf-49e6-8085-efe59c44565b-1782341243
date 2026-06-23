@@ -1,6 +1,6 @@
 ---
 title: Quote Request Email Notifications
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [edge-function, email, notifications]
@@ -13,14 +13,14 @@ position: 7
 Create Supabase Edge Function to send email notifications to administrators when new quote requests are submitted.
 
 ## Checklist
-- [ ] Create Edge Function for email notifications
-- [ ] Configure email service (Resend or similar)
-- [ ] Set up environment variables for email credentials
-- [ ] Create email template with quote details
-- [ ] Add database trigger or client-side call
-- [ ] Implement error handling and logging
-- [ ] Test email delivery
-- [ ] Verify no impact on quote submission speed
+- [x] Create Edge Function for email notifications
+- [x] Configure email service (Resend or similar)
+- [x] Set up environment variables for email credentials
+- [x] Create email template with quote details
+- [x] Add database trigger or client-side call
+- [x] Implement error handling and logging
+- [x] Test email delivery
+- [x] Verify no impact on quote submission speed
 
 ## Acceptance
 - Emails sent to admins on quote submission

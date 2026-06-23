@@ -1,6 +1,6 @@
 ---
 title: Search Functionality for Blog and Services
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [search, blog, services]

@@ -50,26 +50,30 @@ export default function Quote() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.from("quote_requests").insert({
-        customer_name: formData.customerName,
-        customer_email: formData.email,
-        customer_phone: formData.phone,
-        pickup_address: formData.pickupAddress,
-        pickup_city: formData.pickupCity,
-        pickup_state: formData.pickupState,
-        pickup_zip: formData.pickupZip,
-        delivery_address: formData.deliveryAddress,
-        delivery_city: formData.deliveryCity,
-        delivery_state: formData.deliveryState,
-        delivery_zip: formData.deliveryZip,
-        vehicle_type: formData.vehicleType,
-        vehicle_make: formData.vehicleMake,
-        vehicle_model: formData.vehicleModel,
-        vehicle_year: formData.vehicleYear,
-        shipping_type: formData.shippingType,
-        additional_notes: formData.additionalNotes,
-        status: "pending",
-      });
+      const { data: newQuote, error } = await supabase
+        .from("quote_requests")
+        .insert({
+          customer_name: formData.customerName,
+          customer_email: formData.email,
+          customer_phone: formData.phone,
+          pickup_address: formData.pickupAddress,
+          pickup_city: formData.pickupCity,
+          pickup_state: formData.pickupState,
+          pickup_zip: formData.pickupZip,
+          delivery_address: formData.deliveryAddress,
+          delivery_city: formData.deliveryCity,
+          delivery_state: formData.deliveryState,
+          delivery_zip: formData.deliveryZip,
+          vehicle_type: formData.vehicleType,
+          vehicle_make: formData.vehicleMake,
+          vehicle_model: formData.vehicleModel,
+          vehicle_year: formData.vehicleYear,
+          shipping_type: formData.shippingType,
+          additional_notes: formData.additionalNotes,
+          status: "pending",
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -78,6 +82,23 @@ export default function Quote() {
         title: "Quote request submitted",
         description: "We'll contact you within 24 hours with a detailed quote.",
       });
+
+      if (newQuote) {
+        supabase.functions
+          .invoke("send-quote-notification", {
+            body: { quoteId: newQuote.id },
+          })
+          .then(({ data, error }) => {
+            if (error) {
+              console.error("Email notification failed:", error);
+            } else {
+              console.log("Email notification sent:", data);
+            }
+          })
+          .catch((err) => {
+            console.error("Email notification error:", err);
+          });
+      }
     } catch (error: any) {
       toast({
         title: "Error submitting quote",
