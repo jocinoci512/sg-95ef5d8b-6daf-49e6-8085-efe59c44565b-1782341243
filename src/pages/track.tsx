@@ -21,12 +21,12 @@ interface TrackingEvent {
 interface Shipment {
   id: string;
   tracking_number: string;
-  pickup_location: string;
-  delivery_location: string;
+  pickup_address: string;
+  delivery_address: string;
   vehicle_type: string;
   status: string;
-  estimated_delivery: string | null;
-  actual_delivery: string | null;
+  estimated_delivery_date: string | null;
+  actual_delivery_date: string | null;
   notes: string | null;
   created_at: string;
   tracking_events: TrackingEvent[];
@@ -161,7 +161,7 @@ export default function Track() {
                         <MapPin className="h-5 w-5 text-primary mt-0.5" />
                         <div>
                           <p className="text-sm text-muted-foreground mb-1">Pickup Location</p>
-                          <p className="font-medium">{shipment.pickup_location}</p>
+                          <p className="font-medium">{shipment.pickup_address}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
@@ -178,7 +178,7 @@ export default function Track() {
                         <MapPin className="h-5 w-5 text-accent mt-0.5" />
                         <div>
                           <p className="text-sm text-muted-foreground mb-1">Delivery Location</p>
-                          <p className="font-medium">{shipment.delivery_location}</p>
+                          <p className="font-medium">{shipment.delivery_address}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
@@ -188,10 +188,10 @@ export default function Track() {
                             {shipment.status === "delivered" ? "Delivered On" : "Estimated Delivery"}
                           </p>
                           <p className="font-medium">
-                            {shipment.status === "delivered" && shipment.actual_delivery
-                              ? new Date(shipment.actual_delivery).toLocaleDateString()
-                              : shipment.estimated_delivery
-                              ? new Date(shipment.estimated_delivery).toLocaleDateString()
+                            {shipment.status === "delivered" && shipment.actual_delivery_date
+                              ? new Date(shipment.actual_delivery_date).toLocaleDateString()
+                              : shipment.estimated_delivery_date
+                              ? new Date(shipment.estimated_delivery_date).toLocaleDateString()
                               : "TBD"}
                           </p>
                         </div>

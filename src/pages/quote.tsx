@@ -46,8 +46,8 @@ export default function Quote() {
     try {
       const { error } = await supabase.from("quote_requests").insert({
         customer_name: formData.customerName,
-        email: formData.email,
-        phone: formData.phone,
+        customer_email: formData.email,
+        customer_phone: formData.phone,
         pickup_location: formData.pickupLocation,
         delivery_location: formData.deliveryLocation,
         vehicle_type: formData.vehicleType,
