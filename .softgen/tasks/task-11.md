@@ -1,6 +1,6 @@
 ---
 title: Admin Dashboard & Management
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [admin, dashboard, management]
@@ -13,15 +13,15 @@ position: 11
 Build secure admin portal with shipment management, customer management, and quote request management.
 
 ## Checklist
-- [ ] Create admin dashboard overview with analytics
-- [ ] Create shipment management page (CRUD)
-- [ ] Create quote request management page
-- [ ] Add shipment status update functionality
-- [ ] Add search and filtering for shipments
-- [ ] Add search and filtering for quotes
-- [ ] Implement admin-only RLS policies
-- [ ] Test role-based permissions
-- [ ] Verify mobile responsiveness
+- [x] Create admin dashboard overview with analytics
+- [x] Create shipment management page (CRUD)
+- [x] Create quote request management page
+- [x] Add shipment status update functionality
+- [x] Add search and filtering for shipments
+- [x] Add search and filtering for quotes
+- [x] Implement admin-only RLS policies
+- [x] Test role-based permissions
+- [x] Verify mobile responsiveness
 
 ## Acceptance
 - Admins can create, edit, delete shipments
