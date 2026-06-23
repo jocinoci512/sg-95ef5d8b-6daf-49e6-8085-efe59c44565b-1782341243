@@ -1,6 +1,6 @@
 ---
 title: Admin Dashboard & Management
-status: todo
+status: in_progress
 priority: high
 type: feature
 tags: [admin, dashboard, management]
