@@ -1,10 +1,38 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { Truck, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [router.pathname]);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [mobileMenuOpen]);
+
+  const isActive = (path: string) => router.pathname === path;
+
+  const navLinks = [
+    { href: "/", label: "Home" },
+    { href: "/about", label: "About" },
+    { href: "/services", label: "Services" },
+    { href: "/track", label: "Track Shipment" },
+    { href: "/blog", label: "Blog" },
+    { href: "/contact", label: "Contact" },
+  ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -15,24 +43,17 @@ export function Header() {
         </Link>
 
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">
-            Home
-          </Link>
-          <Link href="/about" className="text-sm font-medium hover:text-primary transition-colors">
-            About
-          </Link>
-          <Link href="/services" className="text-sm font-medium hover:text-primary transition-colors">
-            Services
-          </Link>
-          <Link href="/track" className="text-sm font-medium hover:text-primary transition-colors">
-            Track Shipment
-          </Link>
-          <Link href="/blog" className="text-sm font-medium hover:text-primary transition-colors">
-            Blog
-          </Link>
-          <Link href="/contact" className="text-sm font-medium hover:text-primary transition-colors">
-            Contact
-          </Link>
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`text-sm font-medium transition-colors ${
+                isActive(link.href) ? "text-primary" : "hover:text-primary"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
 
         <div className="hidden md:flex items-center gap-3">
@@ -51,47 +72,45 @@ export function Header() {
         <button
           className="md:hidden"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileMenuOpen}
         >
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </nav>
 
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-card">
-          <div className="container py-4 flex flex-col gap-3">
-            <Link href="/" className="py-2 text-sm font-medium hover:text-primary">
-              Home
+      <div
+        className={`md:hidden border-t border-border bg-card overflow-hidden transition-all duration-300 ease-in-out ${
+          mobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="container py-4 flex flex-col gap-3">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`py-2 text-sm font-medium transition-colors ${
+                isActive(link.href) ? "text-primary font-bold" : "hover:text-primary"
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {link.label}
             </Link>
-            <Link href="/about" className="py-2 text-sm font-medium hover:text-primary">
-              About
+          ))}
+          <div className="flex flex-col gap-2 pt-2">
+            <Link href="/portal/login" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="ghost" className="w-full">
+                Login
+              </Button>
             </Link>
-            <Link href="/services" className="py-2 text-sm font-medium hover:text-primary">
-              Services
+            <Link href="/quote" onClick={() => setMobileMenuOpen(false)}>
+              <Button className="w-full font-mono">
+                Get Quote
+              </Button>
             </Link>
-            <Link href="/track" className="py-2 text-sm font-medium hover:text-primary">
-              Track Shipment
-            </Link>
-            <Link href="/blog" className="py-2 text-sm font-medium hover:text-primary">
-              Blog
-            </Link>
-            <Link href="/contact" className="py-2 text-sm font-medium hover:text-primary">
-              Contact
-            </Link>
-            <div className="flex flex-col gap-2 pt-2">
-              <Link href="/portal/login">
-                <Button variant="ghost" className="w-full">
-                  Login
-                </Button>
-              </Link>
-              <Link href="/quote">
-                <Button className="w-full font-mono">
-                  Get Quote
-                </Button>
-              </Link>
-            </div>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }
