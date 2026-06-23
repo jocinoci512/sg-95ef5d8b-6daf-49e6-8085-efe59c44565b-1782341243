@@ -1,6 +1,6 @@
 ---
 title: Customer Dashboard & Portal
-status: todo
+status: done
 priority: high
 type: feature
 tags: [customer, dashboard, portal]
@@ -13,14 +13,14 @@ position: 10
 Build secure customer portal with dashboard, shipment tracking, profile management, and notifications.
 
 ## Checklist
-- [ ] Create dashboard overview with stats
-- [ ] Create shipment history page
-- [ ] Create shipment detail page with timeline
-- [ ] Create profile management page
-- [ ] Add RLS policies for customer data
-- [ ] Implement customer navigation layout
-- [ ] Test data isolation between customers
-- [ ] Verify mobile responsiveness
+- [x] Create dashboard overview with stats
+- [x] Create shipment history page
+- [x] Create shipment detail page with timeline
+- [x] Create profile management page
+- [x] Add RLS policies for customer data
+- [x] Implement customer navigation layout
+- [x] Test data isolation between customers
+- [x] Verify mobile responsiveness
 
 ## Acceptance
 - Dashboard displays customer-specific data only
