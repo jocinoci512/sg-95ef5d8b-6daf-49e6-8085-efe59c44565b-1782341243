@@ -21,8 +21,14 @@ export default function Quote() {
     customerName: "",
     email: "",
     phone: "",
-    pickupLocation: "",
-    deliveryLocation: "",
+    pickupAddress: "",
+    pickupCity: "",
+    pickupState: "",
+    pickupZip: "",
+    deliveryAddress: "",
+    deliveryCity: "",
+    deliveryState: "",
+    deliveryZip: "",
     vehicleType: "",
     vehicleMake: "",
     vehicleModel: "",
@@ -48,8 +54,14 @@ export default function Quote() {
         customer_name: formData.customerName,
         customer_email: formData.email,
         customer_phone: formData.phone,
-        pickup_location: formData.pickupLocation,
-        delivery_location: formData.deliveryLocation,
+        pickup_address: formData.pickupAddress,
+        pickup_city: formData.pickupCity,
+        pickup_state: formData.pickupState,
+        pickup_zip: formData.pickupZip,
+        delivery_address: formData.deliveryAddress,
+        delivery_city: formData.deliveryCity,
+        delivery_state: formData.deliveryState,
+        delivery_zip: formData.deliveryZip,
         vehicle_type: formData.vehicleType,
         vehicle_make: formData.vehicleMake,
         vehicle_model: formData.vehicleModel,
@@ -176,13 +188,13 @@ export default function Quote() {
                 <div className="border-t border-border pt-8">
                   <h2 className="text-2xl font-bold mb-6">Route Information</h2>
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="pickupLocation">Pickup Location *</Label>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="pickupAddress">Pickup Address *</Label>
                       <Input
-                        id="pickupLocation"
-                        name="pickupLocation"
-                        placeholder="City, State or ZIP"
-                        value={formData.pickupLocation}
+                        id="pickupAddress"
+                        name="pickupAddress"
+                        placeholder="Street address"
+                        value={formData.pickupAddress}
                         onChange={handleChange}
                         required
                         className="bg-background"
@@ -190,12 +202,86 @@ export default function Quote() {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="deliveryLocation">Delivery Location *</Label>
+                      <Label htmlFor="pickupCity">Pickup City *</Label>
                       <Input
-                        id="deliveryLocation"
-                        name="deliveryLocation"
-                        placeholder="City, State or ZIP"
-                        value={formData.deliveryLocation}
+                        id="pickupCity"
+                        name="pickupCity"
+                        value={formData.pickupCity}
+                        onChange={handleChange}
+                        required
+                        className="bg-background"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="pickupState">Pickup State *</Label>
+                      <Input
+                        id="pickupState"
+                        name="pickupState"
+                        placeholder="e.g., CA"
+                        value={formData.pickupState}
+                        onChange={handleChange}
+                        required
+                        className="bg-background"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="pickupZip">Pickup ZIP Code *</Label>
+                      <Input
+                        id="pickupZip"
+                        name="pickupZip"
+                        value={formData.pickupZip}
+                        onChange={handleChange}
+                        required
+                        className="bg-background"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="deliveryAddress">Delivery Address *</Label>
+                      <Input
+                        id="deliveryAddress"
+                        name="deliveryAddress"
+                        placeholder="Street address"
+                        value={formData.deliveryAddress}
+                        onChange={handleChange}
+                        required
+                        className="bg-background"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="deliveryCity">Delivery City *</Label>
+                      <Input
+                        id="deliveryCity"
+                        name="deliveryCity"
+                        value={formData.deliveryCity}
+                        onChange={handleChange}
+                        required
+                        className="bg-background"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="deliveryState">Delivery State *</Label>
+                      <Input
+                        id="deliveryState"
+                        name="deliveryState"
+                        placeholder="e.g., NY"
+                        value={formData.deliveryState}
+                        onChange={handleChange}
+                        required
+                        className="bg-background"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="deliveryZip">Delivery ZIP Code *</Label>
+                      <Input
+                        id="deliveryZip"
+                        name="deliveryZip"
+                        value={formData.deliveryZip}
                         onChange={handleChange}
                         required
                         className="bg-background"

@@ -12,10 +12,10 @@ import { Package, MapPin, Truck, CheckCircle2, Clock, AlertCircle, Loader2 } fro
 
 interface TrackingEvent {
   id: string;
-  location: string;
+  location: string | null;
   status: string;
   description: string | null;
-  timestamp: string;
+  event_date: string | null;
 }
 
 interface Shipment {
@@ -213,7 +213,7 @@ export default function Track() {
                   {shipment.tracking_events && shipment.tracking_events.length > 0 ? (
                     <div className="space-y-6">
                       {shipment.tracking_events
-                        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                        .sort((a, b) => new Date(b.event_date || 0).getTime() - new Date(a.event_date || 0).getTime())
                         .map((event, index) => (
                           <div key={event.id} className="flex gap-4">
                             <div className="flex flex-col items-center">
@@ -237,10 +237,10 @@ export default function Track() {
                                   {event.status.replace(/_/g, " ")}
                                 </p>
                                 <p className="text-sm text-muted-foreground font-data">
-                                  {new Date(event.timestamp).toLocaleString()}
+                                  {event.event_date ? new Date(event.event_date).toLocaleString() : "N/A"}
                                 </p>
                               </div>
-                              <p className="text-sm text-muted-foreground mb-1">{event.location}</p>
+                              <p className="text-sm text-muted-foreground mb-1">{event.location || "Location TBD"}</p>
                               {event.description && (
                                 <p className="text-sm text-muted-foreground">{event.description}</p>
                               )}
