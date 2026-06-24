@@ -33,6 +33,9 @@ const eslintConfig = [
   {
     ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts"],
   },
+  {
+    ignores: ["scripts/**/*.js"], // Allow CommonJS in scripts directory
+  },
 ];
 
 export default eslintConfig;
