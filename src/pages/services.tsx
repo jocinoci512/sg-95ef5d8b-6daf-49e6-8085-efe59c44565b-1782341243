@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/SEO";
 import { ShippingCalculator } from "@/components/ShippingCalculator";
 import Link from "next/link";
+import type { GetServerSideProps } from "next";
 import {
   Truck,
   Shield,
@@ -157,6 +158,12 @@ export default function Services() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {},
+  };
+};
 
 const services = [
   {

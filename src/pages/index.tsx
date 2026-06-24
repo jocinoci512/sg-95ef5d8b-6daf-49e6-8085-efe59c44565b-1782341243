@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { TrackingForm } from "@/components/TrackingForm";
 import { useLanguage } from "@/contexts/LanguageContext";
+import type { GetServerSideProps } from "next";
 import {
   Truck,
   Ship,
@@ -344,3 +345,9 @@ export default function Home() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {},
+  };
+};
