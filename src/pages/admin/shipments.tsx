@@ -74,8 +74,18 @@ export default function AdminShipments() {
       if (error) throw error;
 
       const formattedData = data?.map((shipment: any) => ({
-        ...shipment,
+        id: shipment.id,
+        tracking_number: shipment.tracking_number,
+        customer_id: shipment.customer_id,
         customer_name: shipment.profiles?.full_name || "Unknown",
+        origin: `${shipment.pickup_city}, ${shipment.pickup_state}`,
+        destination: `${shipment.delivery_city}, ${shipment.delivery_state}`,
+        vehicle_type: shipment.vehicle_type,
+        service_type: shipment.shipping_type,
+        status: shipment.status,
+        pickup_date: shipment.estimated_pickup_date || shipment.actual_pickup_date || "",
+        delivery_date: shipment.estimated_delivery_date || shipment.actual_delivery_date || null,
+        total_cost: shipment.price || 0,
       })) || [];
 
       setShipments(formattedData);
@@ -118,8 +128,8 @@ export default function AdminShipments() {
       origin: "",
       destination: "",
       vehicle_type: "",
-      service_type: "open_transport",
-      status: "pending",
+      service_type: "open_carrier",
+      status: "pending_pickup",
       pickup_date: "",
       delivery_date: "",
       total_cost: 0,
@@ -147,31 +157,17 @@ export default function AdminShipments() {
   const handleSave = async () => {
     try {
       if (editingShipment) {
-        const updateData: Partial<{
-          tracking_number: string;
-          origin: string;
-          destination: string;
-          vehicle_type: string;
-          service_type: string;
-          status: string;
-          pickup_date: string;
-          delivery_date: string | null;
-          total_cost: number;
-        }> = {
-          tracking_number: formData.tracking_number,
-          origin: formData.origin,
-          destination: formData.destination,
-          vehicle_type: formData.vehicle_type,
-          service_type: formData.service_type,
-          status: formData.status,
-          pickup_date: formData.pickup_date,
-          delivery_date: formData.delivery_date || null,
-          total_cost: formData.total_cost,
-        };
-
         const { error } = await supabase
           .from("shipments")
-          .update(updateData)
+          .update({
+            tracking_number: formData.tracking_number,
+            vehicle_type: formData.vehicle_type,
+            shipping_type: formData.service_type,
+            status: formData.status,
+            estimated_pickup_date: formData.pickup_date || null,
+            estimated_delivery_date: formData.delivery_date || null,
+            price: formData.total_cost,
+          })
           .eq("id", editingShipment.id);
 
         if (error) throw error;
@@ -199,14 +195,20 @@ export default function AdminShipments() {
         const { error } = await supabase.from("shipments").insert({
           tracking_number: formData.tracking_number,
           customer_id: profile.id,
-          origin: formData.origin,
-          destination: formData.destination,
+          pickup_address: "TBD",
+          pickup_city: formData.origin.split(",")[0]?.trim() || "Unknown",
+          pickup_state: formData.origin.split(",")[1]?.trim() || "Unknown",
+          pickup_zip: "00000",
+          delivery_address: "TBD",
+          delivery_city: formData.destination.split(",")[0]?.trim() || "Unknown",
+          delivery_state: formData.destination.split(",")[1]?.trim() || "Unknown",
+          delivery_zip: "00000",
           vehicle_type: formData.vehicle_type,
-          service_type: formData.service_type,
+          shipping_type: formData.service_type,
           status: formData.status,
-          pickup_date: formData.pickup_date,
-          delivery_date: formData.delivery_date || null,
-          total_cost: formData.total_cost,
+          estimated_pickup_date: formData.pickup_date || null,
+          estimated_delivery_date: formData.delivery_date || null,
+          price: formData.total_cost,
         });
 
         if (error) throw error;
