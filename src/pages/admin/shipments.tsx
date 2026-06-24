@@ -147,19 +147,31 @@ export default function AdminShipments() {
   const handleSave = async () => {
     try {
       if (editingShipment) {
+        const updateData: Partial<{
+          tracking_number: string;
+          origin: string;
+          destination: string;
+          vehicle_type: string;
+          service_type: string;
+          status: string;
+          pickup_date: string;
+          delivery_date: string | null;
+          total_cost: number;
+        }> = {
+          tracking_number: formData.tracking_number,
+          origin: formData.origin,
+          destination: formData.destination,
+          vehicle_type: formData.vehicle_type,
+          service_type: formData.service_type,
+          status: formData.status,
+          pickup_date: formData.pickup_date,
+          delivery_date: formData.delivery_date || null,
+          total_cost: formData.total_cost,
+        };
+
         const { error } = await supabase
           .from("shipments")
-          .update({
-            tracking_number: formData.tracking_number,
-            origin: formData.origin,
-            destination: formData.destination,
-            vehicle_type: formData.vehicle_type,
-            service_type: formData.service_type,
-            status: formData.status,
-            pickup_date: formData.pickup_date,
-            delivery_date: formData.delivery_date || null,
-            total_cost: formData.total_cost,
-          })
+          .update(updateData)
           .eq("id", editingShipment.id);
 
         if (error) throw error;
