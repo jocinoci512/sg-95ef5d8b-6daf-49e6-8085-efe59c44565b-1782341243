@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Truck, LogOut, Menu, X, Users, Package, Clock, CheckCircle2, FileText, TrendingUp } from "lucide-react";
+import { Truck, LogOut, Menu, X, Users, Package, Clock, CheckCircle2, FileText, TrendingUp, LayoutDashboard } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface Stats {
