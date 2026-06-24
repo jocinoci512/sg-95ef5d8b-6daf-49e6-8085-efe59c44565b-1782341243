@@ -77,9 +77,14 @@ export default function Services() {
                 <div className="grid gap-12">
                   {filteredServices.map((service, index) => (
                     <Card key={service.title} className="p-8 border-border hover:border-primary/50 transition-colors">
-                      <div className="grid md:grid-cols-[auto,1fr] gap-8">
-                        <div className="flex items-start">
-                          <div className="w-16 h-16 rounded-sm bg-primary/10 border-2 border-primary flex items-center justify-center shrink-0">
+                      <div className="grid md:grid-cols-[300px,1fr] gap-8">
+                        <div>
+                          <img
+                            src={service.image}
+                            alt={service.title}
+                            className="w-full h-48 object-cover rounded-lg mb-4"
+                          />
+                          <div className="w-16 h-16 rounded-sm bg-primary/10 border-2 border-primary flex items-center justify-center mx-auto">
                             <service.icon className="h-8 w-8 text-primary" />
                           </div>
                         </div>
@@ -146,6 +151,7 @@ const services = [
   {
     icon: Truck,
     title: "Auto Transport",
+    image: "/hero-car-carrier.jpg",
     description: "Professional door-to-door vehicle shipping for cars, trucks, and SUVs. Our nationwide network ensures reliable pickup and delivery across all 50 states.",
     features: [
       "Door-to-door service available",
@@ -159,6 +165,7 @@ const services = [
   {
     icon: Package,
     title: "Open Carrier Transport",
+    image: "/fleet-highway.jpg",
     description: "Cost-effective vehicle shipping on open carriers. Perfect for standard vehicles and the most economical option for long-distance transport.",
     features: [
       "Most affordable option",
@@ -172,6 +179,7 @@ const services = [
   {
     icon: Shield,
     title: "Enclosed Carrier Transport",
+    image: "/enclosed-transport.png",
     description: "Premium protection for luxury, classic, and high-value vehicles. Fully enclosed trailers shield your vehicle from weather and road debris.",
     features: [
       "Complete weather protection",
@@ -185,6 +193,7 @@ const services = [
   {
     icon: Bike,
     title: "Motorcycle Shipping",
+    image: "/motorcycle-transport.png",
     description: "Specialized motorcycle transport with custom cradles and soft-tie systems. Safe handling for cruisers, sport bikes, and touring motorcycles.",
     features: [
       "Custom motorcycle cradles",
@@ -198,6 +207,7 @@ const services = [
   {
     icon: Container,
     title: "Heavy Equipment Transport",
+    image: "/heavy-equipment.png",
     description: "Specialized hauling for construction equipment, farm machinery, and industrial vehicles. Permitted and oversized load expertise.",
     features: [
       "Heavy haul specialists",
@@ -211,6 +221,7 @@ const services = [
   {
     icon: Globe,
     title: "International Shipping",
+    image: "/port-operations.png",
     description: "Cross-border vehicle transportation to Canada, Mexico, and overseas destinations. Full documentation and customs support.",
     features: [
       "Canada and Mexico service",
@@ -224,6 +235,7 @@ const services = [
   {
     icon: Plane,
     title: "Expedited Shipping",
+    image: "/hero-driver.jpg",
     description: "Priority vehicle transport for time-sensitive deliveries. Dedicated trucks and accelerated timelines when you need it fast.",
     features: [
       "Guaranteed pickup dates",
@@ -237,6 +249,7 @@ const services = [
   {
     icon: Building2,
     title: "Fleet & Dealer Transport",
+    image: "/warehouse-operations.jpg",
     description: "Bulk vehicle shipping solutions for dealerships, rental companies, and fleet managers. Volume discounts and dedicated account management.",
     features: [
       "Volume pricing discounts",

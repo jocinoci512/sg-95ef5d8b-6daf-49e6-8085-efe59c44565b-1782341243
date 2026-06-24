@@ -194,7 +194,7 @@ export default function Home() {
                 <Card className="p-6 border-border hover:border-primary transition-all">
                   <div className="mb-4">
                     <img
-                      src="/port-operations.jpg"
+                      src="/port-operations.png"
                       alt="International Shipping"
                       className="w-full h-48 object-cover rounded"
                     />
@@ -214,7 +214,7 @@ export default function Home() {
                 <Card className="p-6 border-border hover:border-primary transition-all">
                   <div className="mb-4">
                     <img
-                      src="/heavy-equipment.jpg"
+                      src="/heavy-equipment.png"
                       alt="Heavy Equipment"
                       className="w-full h-48 object-cover rounded"
                     />
@@ -234,7 +234,7 @@ export default function Home() {
                 <Card className="p-6 border-border hover:border-primary transition-all">
                   <div className="mb-4">
                     <img
-                      src="/motorcycle-transport.jpg"
+                      src="/motorcycle-transport.png"
                       alt="Motorcycle Shipping"
                       className="w-full h-48 object-cover rounded"
                     />
@@ -254,7 +254,7 @@ export default function Home() {
                 <Card className="p-6 border-border hover:border-primary transition-all">
                   <div className="mb-4">
                     <img
-                      src="/enclosed-transport.jpg"
+                      src="/enclosed-transport.png"
                       alt="Enclosed Carrier"
                       className="w-full h-48 object-cover rounded"
                     />
