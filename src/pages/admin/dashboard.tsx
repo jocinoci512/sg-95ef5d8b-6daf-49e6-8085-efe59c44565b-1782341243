@@ -7,18 +7,8 @@ import { Card } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Truck,
-  Package,
-  Users,
-  FileText,
-  CheckCircle2,
-  Clock,
-  LogOut,
-  Menu,
-  X,
-  LayoutDashboard,
-} from "lucide-react";
+import { Truck, LogOut, Menu, X, Users, Package, Clock, CheckCircle2, FileText, TrendingUp } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface Stats {
   totalCustomers: number;
@@ -36,6 +26,11 @@ interface RecentActivity {
   time: string;
 }
 
+interface VolumeData {
+  date: string;
+  count: number;
+}
+
 export default function AdminDashboard() {
   return (
     <ProtectedRoute requiredRole="admin">
@@ -49,12 +44,19 @@ function AdminDashboardContent() {
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [adminName, setAdminName] = useState("");
-  const [stats, setStats] = useState<Stats>({
+  const [stats, setStats] = useState({
     totalCustomers: 0,
     totalShipments: 0,
     activeShipments: 0,
     deliveredShipments: 0,
     pendingQuotes: 0,
+  });
+  const [volumeData, setVolumeData] = useState<VolumeData[]>([]);
+  const [volumeStats, setVolumeStats] = useState({
+    totalThisMonth: 0,
+    avgDaily: 0,
+    highestDay: 0,
+    lowestDay: 0,
   });
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,42 +78,85 @@ function AdminDashboardContent() {
 
       if (profile) setAdminName(profile.full_name);
 
-      const { data: customers } = await supabase
+      const { count: customersCount } = await supabase
         .from("profiles")
-        .select("id")
+        .select("*", { count: "exact", head: true })
         .eq("role", "customer");
 
-      const { data: shipments } = await supabase
+      const { count: shipmentsCount } = await supabase
         .from("shipments")
-        .select("id, status, created_at");
+        .select("*", { count: "exact", head: true });
 
-      const { data: quotes } = await supabase
+      const { count: activeCount } = await supabase
+        .from("shipments")
+        .select("*", { count: "exact", head: true })
+        .neq("status", "delivered");
+
+      const { count: deliveredCount } = await supabase
+        .from("shipments")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "delivered");
+
+      const { count: quotesCount } = await supabase
         .from("quote_requests")
-        .select("id, status")
+        .select("*", { count: "exact", head: true })
         .eq("status", "pending");
 
       setStats({
-        totalCustomers: customers?.length || 0,
-        totalShipments: shipments?.length || 0,
-        activeShipments: shipments?.filter(s => s.status !== "delivered").length || 0,
-        deliveredShipments: shipments?.filter(s => s.status === "delivered").length || 0,
-        pendingQuotes: quotes?.length || 0,
+        totalCustomers: customersCount || 0,
+        totalShipments: shipmentsCount || 0,
+        activeShipments: activeCount || 0,
+        deliveredShipments: deliveredCount || 0,
+        pendingQuotes: quotesCount || 0,
       });
 
-      const activity: RecentActivity[] = [];
-      if (shipments) {
-        shipments.slice(0, 3).forEach(s => {
-          activity.push({
-            id: s.id,
-            type: "shipment",
-            title: "New Shipment Created",
-            description: `Shipment created`,
-            time: new Date(s.created_at).toLocaleDateString(),
-          });
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const { data: shipmentsData } = await supabase
+        .from("shipments")
+        .select("created_at")
+        .gte("created_at", thirtyDaysAgo.toISOString())
+        .order("created_at");
+
+      const dateCounts: Record<string, number> = {};
+      const last30Days: VolumeData[] = [];
+
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split("T")[0];
+        dateCounts[dateStr] = 0;
+        last30Days.push({
+          date: dateStr,
+          count: 0,
         });
       }
 
-      setRecentActivity(activity);
+      if (shipmentsData) {
+        shipmentsData.forEach((shipment) => {
+          const dateStr = shipment.created_at.split("T")[0];
+          if (dateCounts[dateStr] !== undefined) {
+            dateCounts[dateStr]++;
+          }
+        });
+
+        last30Days.forEach((day) => {
+          day.count = dateCounts[day.date];
+        });
+      }
+
+      setVolumeData(last30Days);
+
+      const counts = last30Days.map((d) => d.count);
+      const nonZeroCounts = counts.filter((c) => c > 0);
+
+      setVolumeStats({
+        totalThisMonth: counts.reduce((a, b) => a + b, 0),
+        avgDaily: counts.reduce((a, b) => a + b, 0) / 30,
+        highestDay: counts.length > 0 ? Math.max(...counts) : 0,
+        lowestDay: nonZeroCounts.length > 0 ? Math.min(...nonZeroCounts) : 0,
+      });
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -194,65 +239,117 @@ function AdminDashboardContent() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             <Card className="p-6 border-border">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-sm bg-blue-500/10 border-2 border-blue-500 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-blue-500" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold font-mono">{stats.totalCustomers}</p>
-                  <p className="text-xs text-muted-foreground">Customers</p>
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <Users className="h-8 w-8 text-primary" />
+                <span className="text-3xl font-bold font-mono">{stats.totalCustomers}</span>
               </div>
+              <p className="text-sm text-muted-foreground">Total Customers</p>
             </Card>
 
             <Card className="p-6 border-border">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-sm bg-primary/10 border-2 border-primary flex items-center justify-center">
-                  <Package className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold font-mono">{stats.totalShipments}</p>
-                  <p className="text-xs text-muted-foreground">Total Shipments</p>
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <Package className="h-8 w-8 text-primary" />
+                <span className="text-3xl font-bold font-mono">{stats.totalShipments}</span>
               </div>
+              <p className="text-sm text-muted-foreground">Total Shipments</p>
             </Card>
 
             <Card className="p-6 border-border">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-sm bg-accent/10 border-2 border-accent flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-accent" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold font-mono">{stats.activeShipments}</p>
-                  <p className="text-xs text-muted-foreground">Active</p>
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <Clock className="h-8 w-8 text-accent" />
+                <span className="text-3xl font-bold font-mono">{stats.activeShipments}</span>
               </div>
+              <p className="text-sm text-muted-foreground">Active Shipments</p>
             </Card>
 
             <Card className="p-6 border-border">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-sm bg-green-500/10 border-2 border-green-500 flex items-center justify-center">
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold font-mono">{stats.deliveredShipments}</p>
-                  <p className="text-xs text-muted-foreground">Delivered</p>
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <CheckCircle2 className="h-8 w-8 text-green-500" />
+                <span className="text-3xl font-bold font-mono">{stats.deliveredShipments}</span>
               </div>
+              <p className="text-sm text-muted-foreground">Delivered</p>
             </Card>
 
             <Card className="p-6 border-border">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-sm bg-yellow-500/10 border-2 border-yellow-500 flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-yellow-500" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold font-mono">{stats.pendingQuotes}</p>
-                  <p className="text-xs text-muted-foreground">Pending Quotes</p>
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <FileText className="h-8 w-8 text-yellow-500" />
+                <span className="text-3xl font-bold font-mono">{stats.pendingQuotes}</span>
               </div>
+              <p className="text-sm text-muted-foreground">Pending Quotes</p>
             </Card>
           </div>
+
+          <Card className="p-6 border-border mb-8">
+            <div className="flex items-center gap-2 mb-6">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <h2 className="text-xl font-bold">Shipment Volume Trend (Last 30 Days)</h2>
+            </div>
+
+            <div className="grid md:grid-cols-4 gap-4 mb-6">
+              <div className="p-4 bg-background rounded border border-border">
+                <p className="text-2xl font-bold font-mono text-primary">{volumeStats.totalThisMonth}</p>
+                <p className="text-xs text-muted-foreground">Total This Month</p>
+              </div>
+              <div className="p-4 bg-background rounded border border-border">
+                <p className="text-2xl font-bold font-mono text-accent">{volumeStats.avgDaily.toFixed(1)}</p>
+                <p className="text-xs text-muted-foreground">Average Daily</p>
+              </div>
+              <div className="p-4 bg-background rounded border border-border">
+                <p className="text-2xl font-bold font-mono text-green-500">{volumeStats.highestDay}</p>
+                <p className="text-xs text-muted-foreground">Highest Volume Day</p>
+              </div>
+              <div className="p-4 bg-background rounded border border-border">
+                <p className="text-2xl font-bold font-mono text-muted-foreground">{volumeStats.lowestDay}</p>
+                <p className="text-xs text-muted-foreground">Lowest Volume Day</p>
+              </div>
+            </div>
+
+            {volumeData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={volumeData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis
+                    dataKey="date"
+                    stroke="#94A3B8"
+                    tick={{ fill: "#94A3B8", fontSize: 11 }}
+                    tickFormatter={(value) => {
+                      const date = new Date(value);
+                      return `${date.getMonth() + 1}/${date.getDate()}`;
+                    }}
+                  />
+                  <YAxis stroke="#94A3B8" tick={{ fill: "#94A3B8", fontSize: 12 }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1E293B",
+                      border: "1px solid #334155",
+                      borderRadius: "4px",
+                      color: "#E2E8F0",
+                    }}
+                    labelFormatter={(value) => {
+                      const date = new Date(value);
+                      return date.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      });
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#F59E0B"
+                    strokeWidth={2}
+                    dot={{ fill: "#F59E0B", r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                <p>No shipment data available for the last 30 days</p>
+              </div>
+            )}
+          </Card>
 
           <div className="grid lg:grid-cols-2 gap-6">
             <Card className="border-border">

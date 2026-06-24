@@ -12,11 +12,13 @@ import {
   LogOut,
   Menu,
   X,
-  ArrowLeft,
   MapPin,
   Package,
   Clock,
+  ArrowLeft,
   CheckCircle2,
+  FileText,
+  Download,
 } from "lucide-react";
 
 interface TrackingEvent {
@@ -41,6 +43,15 @@ interface Shipment {
   tracking_events: TrackingEvent[];
 }
 
+interface ShipmentDocument {
+  id: string;
+  document_type: string;
+  document_name: string;
+  file_path: string;
+  file_size: number;
+  created_at: string;
+}
+
 export default function ShipmentDetail() {
   return (
     <ProtectedRoute requiredRole="customer">
@@ -57,6 +68,7 @@ function ShipmentDetailContent() {
   const [userName, setUserName] = useState("");
   const [shipment, setShipment] = useState<Shipment | null>(null);
   const [loading, setLoading] = useState(true);
+  const [documents, setDocuments] = useState<ShipmentDocument[]>([]);
 
   useEffect(() => {
     if (id && typeof id === "string") {
@@ -65,6 +77,7 @@ function ShipmentDetailContent() {
   }, [id]);
 
   const fetchShipment = async (shipmentId: string) => {
+    setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -97,20 +110,47 @@ function ShipmentDetailContent() {
         .single();
 
       if (shipmentData) {
-        setShipment(shipmentData as Shipment);
-      } else {
-        toast({
-          title: "Shipment not found",
-          description: "You don't have permission to view this shipment.",
-          variant: "destructive",
-        });
-        router.push("/portal/shipments");
+        setShipment(shipmentData);
       }
+
+      const { data: docsData } = await supabase
+        .from("shipment_documents")
+        .select("*")
+        .eq("shipment_id", shipmentId)
+        .order("created_at", { ascending: false });
+
+      setDocuments(docsData || []);
     } catch (error) {
       console.error("Error fetching shipment:", error);
-      router.push("/portal/shipments");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const downloadDocument = async (doc: ShipmentDocument) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("shipment-documents")
+        .download(doc.file_path);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.document_name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({ title: "Document downloaded successfully" });
+    } catch (error: any) {
+      toast({
+        title: "Download failed",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -331,6 +371,41 @@ function ShipmentDetailContent() {
               </div>
             </Card>
           </div>
+
+          {documents.length > 0 && (
+            <Card className="p-6 border-border">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                Shipping Documents
+              </h2>
+              <div className="space-y-3">
+                {documents.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className="flex items-center justify-between p-4 bg-background rounded border border-border hover:border-primary/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <FileText className="h-5 w-5 text-primary" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{doc.document_name}</p>
+                        <p className="text-sm text-muted-foreground capitalize">
+                          {doc.document_type.replace(/_/g, " ")} • {(doc.file_size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => downloadDocument(doc)}
+                      className="font-mono"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
         </main>
       </div>
     </>

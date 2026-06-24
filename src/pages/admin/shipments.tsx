@@ -33,6 +33,9 @@ import {
   Edit,
   Trash2,
   Loader2,
+  Upload,
+  FileText,
+  Download,
 } from "lucide-react";
 
 interface Shipment {
@@ -64,6 +67,15 @@ interface Customer {
   email: string;
 }
 
+interface ShipmentDocument {
+  id: string;
+  document_type: string;
+  document_name: string;
+  file_path: string;
+  file_size: number;
+  created_at: string;
+}
+
 export default function AdminShipments() {
   return (
     <ProtectedRoute requiredRole="admin">
@@ -85,6 +97,8 @@ function AdminShipmentsContent() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [documents, setDocuments] = useState<ShipmentDocument[]>([]);
   const [formData, setFormData] = useState({
     customerId: "",
     pickupAddress: "",
@@ -308,7 +322,7 @@ function AdminShipmentsContent() {
     }
   };
 
-  const openEditDialog = (shipment: Shipment) => {
+  const openEditDialog = async (shipment: Shipment) => {
     setEditingShipment(shipment);
     setFormData({
       customerId: shipment.customer_id,
@@ -325,6 +339,130 @@ function AdminShipmentsContent() {
       status: shipment.status,
       estimatedDeliveryDate: shipment.estimated_delivery_date || "",
     });
+
+    const { data } = await supabase
+      .from("shipment_documents")
+      .select("*")
+      .eq("shipment_id", shipment.id)
+      .order("created_at", { ascending: false });
+
+    setDocuments(data || []);
+  };
+
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    documentType: string
+  ) => {
+    if (!editingShipment || !e.target.files || e.target.files.length === 0) return;
+
+    const file = e.target.files[0];
+
+    if (file.type !== "application/pdf") {
+      toast({
+        title: "Invalid file type",
+        description: "Only PDF files are allowed",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingDoc(true);
+
+    try {
+      const fileExt = "pdf";
+      const fileName = `${editingShipment.id}/${Date.now()}_${documentType}.${fileExt}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("shipment-documents")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { error: dbError } = await supabase.from("shipment_documents").insert({
+        shipment_id: editingShipment.id,
+        document_type: documentType,
+        document_name: file.name,
+        file_path: uploadData.path,
+        file_size: file.size,
+      });
+
+      if (dbError) throw dbError;
+
+      toast({ title: "Document uploaded successfully" });
+
+      const { data } = await supabase
+        .from("shipment_documents")
+        .select("*")
+        .eq("shipment_id", editingShipment.id)
+        .order("created_at", { ascending: false });
+
+      setDocuments(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Upload failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingDoc(false);
+      e.target.value = "";
+    }
+  };
+
+  const downloadDocument = async (doc: ShipmentDocument) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("shipment-documents")
+        .download(doc.file_path);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.document_name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      toast({
+        title: "Download failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteDocument = async (docId: string) => {
+    if (!confirm("Are you sure you want to delete this document?")) return;
+
+    try {
+      const doc = documents.find((d) => d.id === docId);
+      if (!doc) return;
+
+      const { error: storageError } = await supabase.storage
+        .from("shipment-documents")
+        .remove([doc.file_path]);
+
+      if (storageError) throw storageError;
+
+      const { error: dbError } = await supabase
+        .from("shipment_documents")
+        .delete()
+        .eq("id", docId);
+
+      if (dbError) throw dbError;
+
+      toast({ title: "Document deleted successfully" });
+      setDocuments(documents.filter((d) => d.id !== docId));
+    } catch (error: any) {
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const resetForm = () => {
@@ -792,6 +930,122 @@ function AdminShipmentsContent() {
                                 onChange={(e) => setFormData({ ...formData, estimatedDeliveryDate: e.target.value })}
                                 className="bg-background"
                               />
+                            </div>
+
+                            <div className="border-t border-border pt-4">
+                              <h3 className="font-mono font-bold mb-4">Shipping Documents</h3>
+                              
+                              <div className="grid grid-cols-2 gap-3 mb-4">
+                                <div>
+                                  <Label htmlFor="bol-upload" className="cursor-pointer">
+                                    <div className="border-2 border-dashed border-border rounded p-4 hover:border-primary transition-colors text-center">
+                                      <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                                      <p className="text-sm font-medium">Bill of Lading</p>
+                                      <p className="text-xs text-muted-foreground">PDF only</p>
+                                    </div>
+                                  </Label>
+                                  <Input
+                                    id="bol-upload"
+                                    type="file"
+                                    accept="application/pdf"
+                                    onChange={(e) => handleFileUpload(e, "bill_of_lading")}
+                                    disabled={uploadingDoc}
+                                    className="hidden"
+                                  />
+                                </div>
+
+                                <div>
+                                  <Label htmlFor="invoice-upload" className="cursor-pointer">
+                                    <div className="border-2 border-dashed border-border rounded p-4 hover:border-primary transition-colors text-center">
+                                      <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                                      <p className="text-sm font-medium">Invoice</p>
+                                      <p className="text-xs text-muted-foreground">PDF only</p>
+                                    </div>
+                                  </Label>
+                                  <Input
+                                    id="invoice-upload"
+                                    type="file"
+                                    accept="application/pdf"
+                                    onChange={(e) => handleFileUpload(e, "invoice")}
+                                    disabled={uploadingDoc}
+                                    className="hidden"
+                                  />
+                                </div>
+
+                                <div>
+                                  <Label htmlFor="receipt-upload" className="cursor-pointer">
+                                    <div className="border-2 border-dashed border-border rounded p-4 hover:border-primary transition-colors text-center">
+                                      <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                                      <p className="text-sm font-medium">Receipt</p>
+                                      <p className="text-xs text-muted-foreground">PDF only</p>
+                                    </div>
+                                  </Label>
+                                  <Input
+                                    id="receipt-upload"
+                                    type="file"
+                                    accept="application/pdf"
+                                    onChange={(e) => handleFileUpload(e, "delivery_receipt")}
+                                    disabled={uploadingDoc}
+                                    className="hidden"
+                                  />
+                                </div>
+
+                                <div>
+                                  <Label htmlFor="other-upload" className="cursor-pointer">
+                                    <div className="border-2 border-dashed border-border rounded p-4 hover:border-primary transition-colors text-center">
+                                      <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                                      <p className="text-sm font-medium">Other</p>
+                                      <p className="text-xs text-muted-foreground">PDF only</p>
+                                    </div>
+                                  </Label>
+                                  <Input
+                                    id="other-upload"
+                                    type="file"
+                                    accept="application/pdf"
+                                    onChange={(e) => handleFileUpload(e, "other")}
+                                    disabled={uploadingDoc}
+                                    className="hidden"
+                                  />
+                                </div>
+                              </div>
+
+                              {documents.length > 0 && (
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium mb-2">Uploaded Documents</p>
+                                  {documents.map((doc) => (
+                                    <div
+                                      key={doc.id}
+                                      className="flex items-center justify-between p-3 bg-background rounded border border-border"
+                                    >
+                                      <div className="flex items-center gap-3 flex-1">
+                                        <FileText className="h-4 w-4 text-primary" />
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm font-medium truncate">{doc.document_name}</p>
+                                          <p className="text-xs text-muted-foreground capitalize">
+                                            {doc.document_type.replace(/_/g, " ")} • {(doc.file_size / 1024).toFixed(1)} KB
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          onClick={() => downloadDocument(doc)}
+                                        >
+                                          <Download className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          onClick={() => deleteDocument(doc.id)}
+                                        >
+                                          <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
 
                             <div className="flex gap-3 pt-4">

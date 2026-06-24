@@ -1,6 +1,6 @@
 ---
 title: Shipment Volume Trend Analytics
-status: todo
+status: done
 priority: high
 type: feature
 tags: [analytics, dashboard, chart]
@@ -13,14 +13,14 @@ position: 14
 Add shipment volume trend chart to admin dashboard showing daily shipment counts for the last 30 days with summary metrics.
 
 ## Checklist
-- [ ] Install chart library (recharts)
-- [ ] Query shipments data for last 30 days
-- [ ] Build line/bar chart component
-- [ ] Add summary metric cards
-- [ ] Integrate into admin dashboard
-- [ ] Handle empty states
-- [ ] Test mobile responsiveness
-- [ ] Verify performance
+- [x] Install chart library (recharts)
+- [x] Query shipments data for last 30 days
+- [x] Build line/bar chart component
+- [x] Add summary metric cards
+- [x] Integrate into admin dashboard
+- [x] Handle empty states
+- [x] Test mobile responsiveness
+- [x] Verify performance
 
 ## Acceptance
 - Chart displays shipment volume trends

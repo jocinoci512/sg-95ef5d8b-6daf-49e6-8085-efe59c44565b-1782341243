@@ -1,6 +1,6 @@
 ---
 title: PDF Shipping Document Management
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [documents, storage, admin, customer]
@@ -13,14 +13,14 @@ position: 13
 Build secure PDF document management system allowing admins to upload shipping documents and customers to view/download their shipment documents.
 
 ## Checklist
-- [ ] Create Supabase Storage bucket for documents
-- [ ] Add shipment_documents database table
-- [ ] Configure RLS policies for documents
-- [ ] Add upload UI to admin shipment management
-- [ ] Add document list/download to admin
-- [ ] Add document view/download to customer portal
-- [ ] Implement file validation (PDF only)
-- [ ] Test security and permissions
+- [x] Create Supabase Storage bucket for documents
+- [x] Add shipment_documents database table
+- [x] Configure RLS policies for documents
+- [x] Add upload UI to admin shipment management
+- [x] Add document list/download to admin
+- [x] Add document view/download to customer portal
+- [x] Implement file validation (PDF only)
+- [x] Test security and permissions
 
 ## Acceptance
 - Admins can upload PDFs to shipments
