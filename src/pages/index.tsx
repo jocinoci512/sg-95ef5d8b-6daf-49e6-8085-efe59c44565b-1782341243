@@ -10,10 +10,6 @@ import { TrackingForm } from "@/components/TrackingForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { GetServerSideProps } from "next";
 
-// Force dynamic rendering - disable static generation completely
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 import {
   Truck,
   Ship,
