@@ -55,6 +55,25 @@ function DashboardContent() {
 
   useEffect(() => {
     fetchDashboardData();
+
+    const channel = supabase
+      .channel("customer-dashboard")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "shipments",
+        },
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchDashboardData = async () => {

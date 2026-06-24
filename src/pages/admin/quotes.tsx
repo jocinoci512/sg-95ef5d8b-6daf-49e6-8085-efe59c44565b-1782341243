@@ -71,6 +71,25 @@ function AdminQuotesContent() {
 
   useEffect(() => {
     fetchQuotes();
+
+    const channel = supabase
+      .channel("admin-quotes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "quote_requests",
+        },
+        () => {
+          fetchQuotes();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {

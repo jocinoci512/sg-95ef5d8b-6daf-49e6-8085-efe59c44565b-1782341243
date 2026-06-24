@@ -117,6 +117,25 @@ function AdminShipmentsContent() {
 
   useEffect(() => {
     fetchData();
+
+    const channel = supabase
+      .channel("admin-shipments")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "shipments",
+        },
+        () => {
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {

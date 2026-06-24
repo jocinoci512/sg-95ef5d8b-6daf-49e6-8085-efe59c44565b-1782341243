@@ -50,7 +50,26 @@ function ShipmentsContent() {
 
   useEffect(() => {
     fetchShipments();
-  }, []);
+
+    const channel = supabase
+      .channel("customer-shipments")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "shipments",
+        },
+        () => {
+          fetchShipments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [searchTerm]);
 
   useEffect(() => {
     if (searchTerm) {

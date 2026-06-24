@@ -63,6 +63,58 @@ function AdminDashboardContent() {
 
   useEffect(() => {
     fetchDashboardData();
+
+    const shipmentsChannel = supabase
+      .channel("dashboard-shipments")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "shipments",
+        },
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    const profilesChannel = supabase
+      .channel("dashboard-profiles")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "profiles",
+          filter: "role=eq.customer",
+        },
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    const quotesChannel = supabase
+      .channel("dashboard-quotes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "quote_requests",
+        },
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(shipmentsChannel);
+      supabase.removeChannel(profilesChannel);
+      supabase.removeChannel(quotesChannel);
+    };
   }, []);
 
   const fetchDashboardData = async () => {

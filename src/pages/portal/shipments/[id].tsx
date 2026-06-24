@@ -73,6 +73,60 @@ function ShipmentDetailContent() {
   useEffect(() => {
     if (id && typeof id === "string") {
       fetchShipment(id);
+
+      const shipmentsChannel = supabase
+        .channel(`shipment-${id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "shipments",
+            filter: `id=eq.${id}`,
+          },
+          () => {
+            fetchShipment(id);
+          }
+        )
+        .subscribe();
+
+      const trackingChannel = supabase
+        .channel(`tracking-${id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "tracking_events",
+            filter: `shipment_id=eq.${id}`,
+          },
+          () => {
+            fetchShipment(id);
+          }
+        )
+        .subscribe();
+
+      const documentsChannel = supabase
+        .channel(`documents-${id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "shipment_documents",
+            filter: `shipment_id=eq.${id}`,
+          },
+          () => {
+            fetchShipment(id);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(shipmentsChannel);
+        supabase.removeChannel(trackingChannel);
+        supabase.removeChannel(documentsChannel);
+      };
     }
   }, [id]);
 
