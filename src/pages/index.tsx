@@ -119,32 +119,199 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Company Statistics */}
+          {/* Excellence in Every Delivery */}
           <section className="py-16 bg-background">
             <div className="container mx-auto px-4">
+              <div className="grid md:grid-cols-2 gap-12 items-center mb-12">
+                <div>
+                  <img
+                    src="/hero-driver.jpg"
+                    alt="Professional driver"
+                    className="w-full rounded-lg shadow-lg"
+                  />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-primary mb-2 uppercase tracking-wider">WHY GO CARGO</p>
+                  <h2 className="text-4xl font-bold mb-4">
+                    Excellence in <span className="text-primary">Every Delivery</span>
+                  </h2>
+                  <p className="text-muted-foreground text-lg">
+                    We set the standard for premium auto transport with unmatched service quality, cutting-edge technology, and a network of 500+ vetted carriers across North America.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="p-6 border-border hover:border-primary/50 transition-all">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <Shield className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">Premium Enclosed & Open Transport</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Choose the perfect protection level for your vehicle with our open and enclosed transportation options.
+                  </p>
+                </Card>
+
+                <Card className="p-6 border-border hover:border-primary/50 transition-all">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <MapPin className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">Live GPS Tracking Map</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Real-time shipment visibility with live location updates and ETA tracking on our interactive map.
+                  </p>
+                </Card>
+
+                <Card className="p-6 border-border hover:border-primary/50 transition-all">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <Shield className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">Licensed, Bonded & Fully Insured</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Comprehensive insurance protection and secure transportation coverage on every shipment.
+                  </p>
+                </Card>
+
+                <Card className="p-6 border-border hover:border-primary/50 transition-all">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <Truck className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">Door-to-Door Pickup & Delivery</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Convenient vehicle pickup from your location and delivery directly to your destination.
+                  </p>
+                </Card>
+
+                <Card className="p-6 border-border hover:border-primary/50 transition-all">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <TrendingUp className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">Fast Turnaround & Transparent Pricing</h3>
+                  <p className="text-sm text-muted-foreground">
+                    No hidden fees, quick scheduling, and clear pricing. Get instant quotes and lock in the best rates.
+                  </p>
+                </Card>
+
+                <Card className="p-6 border-border hover:border-primary/50 transition-all">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <Clock className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">24/7 Customer Support</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Around-the-clock customer assistance ready to answer questions and provide updates.
+                  </p>
+                </Card>
+              </div>
+            </div>
+          </section>
+
+          {/* How It Works */}
+          <section className="py-16 bg-card/30 border-y border-border">
+            <div className="container mx-auto px-4">
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold mb-4">{t("stats.title")}</h2>
+                <h2 className="text-4xl font-bold mb-4">
+                  How It <span className="text-primary">Works</span>
+                </h2>
                 <p className="text-muted-foreground text-lg">
-                  {t("stats.subtitle")}
+                  Four simple steps to ship your vehicle.
                 </p>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <Card className="p-8 text-center border-border">
-                  <div className="text-4xl font-bold text-primary mb-2 font-mono">25+</div>
-                  <p className="text-muted-foreground">{t("stats.years")}</p>
-                </Card>
-                <Card className="p-8 text-center border-border">
-                  <div className="text-4xl font-bold text-primary mb-2 font-mono">500K+</div>
-                  <p className="text-muted-foreground">{t("stats.shipments")}</p>
-                </Card>
-                <Card className="p-8 text-center border-border">
-                  <div className="text-4xl font-bold text-primary mb-2 font-mono">98.7%</div>
-                  <p className="text-muted-foreground">{t("stats.ontime")}</p>
-                </Card>
-                <Card className="p-8 text-center border-border">
-                  <div className="text-4xl font-bold text-primary mb-2 font-mono">50+</div>
-                  <p className="text-muted-foreground">{t("stats.countries")}</p>
-                </Card>
+
+              <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+                <div className="relative">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center mb-4 relative z-10">
+                      <span className="text-2xl font-bold text-primary">1</span>
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Request Your Quote</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Fill out our simple form with your vehicle and route details.
+                    </p>
+                  </div>
+                  <div className="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-border -z-0" />
+                </div>
+
+                <div className="relative">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center mb-4 relative z-10">
+                      <span className="text-2xl font-bold text-primary">2</span>
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">We Pick Up Your Vehicle</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Our insured driver arrives at your location on the scheduled date.
+                    </p>
+                  </div>
+                  <div className="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-border -z-0" />
+                </div>
+
+                <div className="relative">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center mb-4 relative z-10">
+                      <span className="text-2xl font-bold text-primary">3</span>
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Track Your Vehicle Live</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Watch your vehicle in real time on our GPS tracking map.
+                    </p>
+                  </div>
+                  <div className="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-border -z-0" />
+                </div>
+
+                <div className="relative">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center mb-4 relative z-10">
+                      <span className="text-2xl font-bold text-primary">4</span>
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Delivered Safely</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Your vehicle arrives in perfect condition at your destination.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Company Statistics - Premium Dark Version */}
+          <section className="py-16 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-12">
+                <p className="text-sm font-medium text-primary mb-2 uppercase tracking-wider">OUR IMPACT</p>
+                <h2 className="text-4xl font-bold mb-4">
+                  Numbers That <span className="text-primary">Speak for Themselves</span>
+                </h2>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-6xl mx-auto">
+                <div className="text-center">
+                  <div className="text-4xl md:text-5xl font-bold text-primary mb-2 font-mono">5,000+</div>
+                  <p className="text-sm text-slate-300">Vehicles Shipped</p>
+                  <p className="text-xs text-slate-400 mt-1">and counting</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl md:text-5xl font-bold text-primary mb-2 font-mono">50</div>
+                  <p className="text-sm text-slate-300">States Covered</p>
+                  <p className="text-xs text-slate-400 mt-1">all across the USA</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl md:text-5xl font-bold text-primary mb-2 font-mono">99%</div>
+                  <p className="text-sm text-slate-300">On-Time Delivery</p>
+                  <p className="text-xs text-slate-400 mt-1">reliability matters</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl md:text-5xl font-bold text-primary mb-2 font-mono">15+</div>
+                  <p className="text-sm text-slate-300">Years Experience</p>
+                  <p className="text-xs text-slate-400 mt-1">trusted since 2009</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl md:text-5xl font-bold text-primary mb-2 font-mono">10,000+</div>
+                  <p className="text-sm text-slate-300">Happy Customers</p>
+                  <p className="text-xs text-slate-400 mt-1">nationwide</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl md:text-5xl font-bold text-primary mb-2 font-mono">100K</div>
+                  <p className="text-sm text-slate-300">Max Insurance</p>
+                  <p className="text-xs text-slate-400 mt-1">per shipment</p>
+                </div>
               </div>
             </div>
           </section>
@@ -289,6 +456,287 @@ export default function Home() {
                   <Link href="/services#fleet">
                     <Button variant="link" className="p-0 h-auto font-mono">
                       {t("services.learnMore")} <ChevronRight className="ml-1 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </Card>
+              </div>
+            </div>
+          </section>
+
+          {/* Advanced Technology */}
+          <section className="py-16 bg-card/30 border-y border-border">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-12">
+                <p className="text-sm font-medium text-primary mb-2 uppercase tracking-wider">BUILT FOR THE MODERN AGE</p>
+                <h2 className="text-4xl font-bold mb-4">
+                  Advanced <span className="text-primary">Technology</span> Behind Every Shipment
+                </h2>
+                <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+                  We invest heavily in technology so you get real-time visibility, accurate ETAs, and zero surprises.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <Card className="p-8 border-border hover:border-primary/50 transition-all">
+                  <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                    <MapPin className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-3">Live GPS Tracking</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Real-time location updates every 5 minutes via satellite. See your vehicle on an interactive map from pickup to delivery.
+                  </p>
+                  <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border">
+                    <div>
+                      <div className="text-3xl font-bold text-primary font-mono">5min</div>
+                      <div className="text-xs text-muted-foreground">Update Interval</div>
+                    </div>
+                    <div>
+                      <div className="text-3xl font-bold text-primary font-mono">99.9%</div>
+                      <div className="text-xs text-muted-foreground">GPS Uptime</div>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-8 border-border hover:border-primary/50 transition-all">
+                  <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                    <TrendingUp className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-3">Smart Route Optimization</h3>
+                  <p className="text-muted-foreground mb-6">
+                    AI-powered route planning selects the fastest, safest path accounting for weather, traffic, and road conditions.
+                  </p>
+                  <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border">
+                    <div>
+                      <div className="text-3xl font-bold text-primary font-mono">18%</div>
+                      <div className="text-xs text-muted-foreground">Faster Delivery</div>
+                    </div>
+                    <div>
+                      <div className="text-3xl font-bold text-primary font-mono">500+</div>
+                      <div className="text-xs text-muted-foreground">Routes Optimized Daily</div>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-8 border-border hover:border-primary/50 transition-all">
+                  <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                    <Clock className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-3">Predictive ETA Engine</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Machine learning models analyze historical data and real-time conditions to give you accurate delivery windows — not just guesses.
+                  </p>
+                  <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border">
+                    <div>
+                      <div className="text-3xl font-bold text-primary font-mono">97%</div>
+                      <div className="text-xs text-muted-foreground">ETA Accuracy</div>
+                    </div>
+                    <div>
+                      <div className="text-3xl font-bold text-primary font-mono">±4hrs</div>
+                      <div className="text-xs text-muted-foreground">Delivery Window</div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </div>
+          </section>
+
+          {/* Complete Shipping Solutions - Pricing Cards */}
+          <section className="py-16 bg-background">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-12">
+                <p className="text-sm font-medium text-primary mb-2 uppercase tracking-wider">FLEXIBLE OPTIONS</p>
+                <h2 className="text-4xl font-bold mb-4">
+                  Complete <span className="text-primary">Shipping Solutions</span>
+                </h2>
+                <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+                  Choose the transport option that fits your vehicle, budget, and timeline.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+                {/* Open Auto Transport */}
+                <Card className="p-6 border-border hover:border-primary/50 transition-all relative">
+                  <div className="absolute top-4 right-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      Best Value
+                    </span>
+                  </div>
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold mb-2">Open Auto Transport</h3>
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <span className="text-4xl font-bold text-primary">$549</span>
+                      <span className="text-sm text-muted-foreground">/starting</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 mb-6">
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Most economical option</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Door-to-door pickup & delivery</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Open carrier GPS tracking</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Licensed & insured carriers</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Standard 7-14 day delivery</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>4.5/5 customer rating</span>
+                    </li>
+                  </ul>
+                  <Link href="/quote">
+                    <Button variant="outline" className="w-full font-mono">
+                      Get a Quote
+                    </Button>
+                  </Link>
+                </Card>
+
+                {/* Enclosed Auto Transport - Featured */}
+                <Card className="p-6 border-2 border-primary bg-gradient-to-br from-primary/5 to-primary/10 relative transform lg:scale-105 shadow-lg">
+                  <div className="absolute top-4 right-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">
+                      Most Popular
+                    </span>
+                  </div>
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold mb-2">Enclosed Auto Transport</h3>
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <span className="text-4xl font-bold text-primary">$849</span>
+                      <span className="text-sm text-muted-foreground">/starting</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 mb-6">
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span className="font-medium">Premium protection</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Fully enclosed trailer</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Ideal for luxury & exotic vehicles</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Maximum weather protection</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>White-glove loading</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Priority scheduling</span>
+                    </li>
+                  </ul>
+                  <Link href="/quote">
+                    <Button className="w-full font-mono">
+                      Get a Quote
+                    </Button>
+                  </Link>
+                </Card>
+
+                {/* Expedited Shipping */}
+                <Card className="p-6 border-border hover:border-primary/50 transition-all relative">
+                  <div className="absolute top-4 right-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                      Priority Service
+                    </span>
+                  </div>
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold mb-2">Expedited Shipping</h3>
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <span className="text-4xl font-bold text-primary">$749</span>
+                      <span className="text-sm text-muted-foreground">/starting</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 mb-6">
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Guaranteed pickup date</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Pickup within 24-48 hours</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Express delivery windows</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Dedicated transport coordinator</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Real-time status updates</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Auction & dealer pickups</span>
+                    </li>
+                  </ul>
+                  <Link href="/quote">
+                    <Button variant="outline" className="w-full font-mono">
+                      Get a Quote
+                    </Button>
+                  </Link>
+                </Card>
+
+                {/* Fleet & Dealership */}
+                <Card className="p-6 border-border hover:border-primary/50 transition-all relative">
+                  <div className="absolute top-4 right-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Business-Focused
+                    </span>
+                  </div>
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold mb-2">Fleet & Dealership</h3>
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <span className="text-4xl font-bold text-primary">Custom</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 mb-6">
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Multi-vehicle discounts</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Dedicated fleet account</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Auction & dealer pickups</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Volume-based pricing</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Priority scheduling</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <span>Custom reporting dashboard</span>
+                    </li>
+                  </ul>
+                  <Link href="/quote">
+                    <Button variant="outline" className="w-full font-mono">
+                      Get a Quote
                     </Button>
                   </Link>
                 </Card>
