@@ -76,6 +76,18 @@ export function Header() {
                 >
                   Español
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setLanguage("fr")}
+                  className={language === "fr" ? "bg-accent" : ""}
+                >
+                  Français
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setLanguage("de")}
+                  className={language === "de" ? "bg-accent" : ""}
+                >
+                  Deutsch
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -125,26 +137,48 @@ export function Header() {
               <div className="pt-4 border-t border-border space-y-3">
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-muted-foreground">Language:</span>
-                  <Button
-                    variant={language === "en" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      setLanguage("en");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    English
-                  </Button>
-                  <Button
-                    variant={language === "es" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      setLanguage("es");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Español
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant={language === "en" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setLanguage("en");
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      EN
+                    </Button>
+                    <Button
+                      variant={language === "es" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setLanguage("es");
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      ES
+                    </Button>
+                    <Button
+                      variant={language === "fr" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setLanguage("fr");
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      FR
+                    </Button>
+                    <Button
+                      variant={language === "de" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setLanguage("de");
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      DE
+                    </Button>
+                  </div>
                 </div>
                 <Link href="/portal/login" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="ghost" size="sm" className="w-full justify-start">
