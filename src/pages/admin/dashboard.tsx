@@ -36,7 +36,7 @@ interface VolumeData {
 
 export default function AdminDashboard() {
   return (
-    <ProtectedRoute requiredRole="admin">
+    <ProtectedRoute>
       <AdminDashboardContent />
     </ProtectedRoute>
   );

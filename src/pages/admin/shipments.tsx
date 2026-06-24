@@ -278,7 +278,7 @@ export default function AdminShipments() {
   };
 
   return (
-    <ProtectedRoute requireAdmin>
+    <ProtectedRoute>
       <div className="min-h-screen bg-background">
         <Header />
 

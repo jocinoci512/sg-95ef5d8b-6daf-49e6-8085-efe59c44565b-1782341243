@@ -55,7 +55,7 @@ interface QuoteRequest {
 
 export default function AdminQuotes() {
   return (
-    <ProtectedRoute requiredRole="admin">
+    <ProtectedRoute>
       <AdminQuotesContent />
     </ProtectedRoute>
   );
