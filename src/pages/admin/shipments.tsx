@@ -1,333 +1,218 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import type { GetServerSideProps } from "next";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { SEO } from "@/components/SEO";
-import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Truck,
-  LogOut,
-  Menu,
-  X,
-  Plus,
-  Search,
-  Edit,
-  Trash2,
-  Loader2,
-  Upload,
-  FileText,
-  Download,
-} from "lucide-react";
+import { Plus, Download } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { ShipmentFilters } from "@/components/admin/ShipmentFilters";
+import { ShipmentTable } from "@/components/admin/ShipmentTable";
+import { ShipmentDialog } from "@/components/admin/ShipmentDialog";
+import type { GetServerSideProps } from "next";
 
 interface Shipment {
   id: string;
   tracking_number: string;
   customer_id: string;
-  pickup_address: string;
-  pickup_city: string;
-  pickup_state: string;
-  pickup_zip: string;
-  delivery_address: string;
-  delivery_city: string;
-  delivery_state: string;
-  delivery_zip: string;
+  customer_name: string;
+  origin: string;
+  destination: string;
   vehicle_type: string;
-  shipping_type: string;
+  service_type: string;
   status: string;
-  estimated_delivery_date: string | null;
-  created_at: string;
-  profiles?: {
-    full_name: string;
-    email: string;
-  };
-}
-
-interface Customer {
-  id: string;
-  full_name: string;
-  email: string;
-}
-
-interface ShipmentDocument {
-  id: string;
-  document_type: string;
-  document_name: string;
-  file_path: string;
-  file_size: number;
-  created_at: string;
+  pickup_date: string;
+  delivery_date: string | null;
+  total_cost: number;
 }
 
 export default function AdminShipments() {
-  return (
-    <ProtectedRoute requiredRole="admin">
-      <AdminShipmentsContent />
-    </ProtectedRoute>
-  );
-}
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  return {
-    props: {},
-  };
-};
-
-function AdminShipmentsContent() {
   const router = useRouter();
   const { toast } = useToast();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [adminName, setAdminName] = useState("");
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [filteredShipments, setFilteredShipments] = useState<Shipment[]>([]);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
-  const [formLoading, setFormLoading] = useState(false);
-  const [uploadingDoc, setUploadingDoc] = useState(false);
-  const [documents, setDocuments] = useState<ShipmentDocument[]>([]);
   const [formData, setFormData] = useState({
-    customerId: "",
-    pickupAddress: "",
-    pickupCity: "",
-    pickupState: "",
-    pickupZip: "",
-    deliveryAddress: "",
-    deliveryCity: "",
-    deliveryState: "",
-    deliveryZip: "",
-    vehicleType: "",
-    shippingType: "standard",
-    status: "pending_pickup",
-    estimatedDeliveryDate: "",
+    tracking_number: "",
+    customer_name: "",
+    origin: "",
+    destination: "",
+    vehicle_type: "",
+    service_type: "open_transport",
+    status: "pending",
+    pickup_date: "",
+    delivery_date: "",
+    total_cost: 0,
   });
 
   useEffect(() => {
-    fetchData();
-
-    const channel = supabase
-      .channel("admin-shipments")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "shipments",
-        },
-        () => {
-          fetchData();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    fetchShipments();
   }, []);
 
   useEffect(() => {
-    if (searchTerm) {
-      setFilteredShipments(
-        shipments.filter(
-          (s) =>
-            s.tracking_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.pickup_address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.delivery_address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.profiles?.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.profiles?.email.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-    } else {
-      setFilteredShipments(shipments);
-    }
-  }, [searchTerm, shipments]);
+    filterShipments();
+  }, [shipments, searchQuery, statusFilter]);
 
-  const fetchData = async () => {
+  const fetchShipments = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user.id)
-        .single();
-
-      if (profile) setAdminName(profile.full_name);
-
-      const { data: customersData } = await supabase
-        .from("profiles")
-        .select("id, full_name, email")
-        .eq("role", "customer")
-        .order("full_name");
-
-      if (customersData) setCustomers(customersData);
-
-      const { data: shipmentsData } = await supabase
+      const { data, error } = await supabase
         .from("shipments")
         .select(`
-          id,
-          tracking_number,
-          customer_id,
-          pickup_address,
-          pickup_city,
-          pickup_state,
-          pickup_zip,
-          delivery_address,
-          delivery_city,
-          delivery_state,
-          delivery_zip,
-          vehicle_type,
-          shipping_type,
-          status,
-          estimated_delivery_date,
-          created_at,
-          profiles:customer_id(full_name, email)
+          *,
+          profiles:customer_id (
+            full_name
+          )
         `)
         .order("created_at", { ascending: false });
 
-      if (shipmentsData) {
-        setShipments(shipmentsData as any);
-        setFilteredShipments(shipmentsData as any);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
+      if (error) throw error;
+
+      const formattedData = data?.map((shipment: any) => ({
+        ...shipment,
+        customer_name: shipment.profiles?.full_name || "Unknown",
+      })) || [];
+
+      setShipments(formattedData);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to fetch shipments",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const generateTrackingNumber = () => {
-    const prefix = "GC";
-    const timestamp = Date.now().toString().slice(-8);
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, "0");
-    return `${prefix}${timestamp}${random}`;
-  };
+  const filterShipments = () => {
+    let filtered = [...shipments];
 
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormLoading(true);
-
-    try {
-      const { error } = await supabase.from("shipments").insert({
-        tracking_number: generateTrackingNumber(),
-        customer_id: formData.customerId,
-        pickup_address: formData.pickupAddress,
-        pickup_city: formData.pickupCity,
-        pickup_state: formData.pickupState,
-        pickup_zip: formData.pickupZip,
-        delivery_address: formData.deliveryAddress,
-        delivery_city: formData.deliveryCity,
-        delivery_state: formData.deliveryState,
-        delivery_zip: formData.deliveryZip,
-        vehicle_type: formData.vehicleType,
-        shipping_type: formData.shippingType,
-        status: formData.status,
-        estimated_delivery_date: formData.estimatedDeliveryDate || null,
-      });
-
-      if (error) throw error;
-
-      toast({ title: "Shipment created successfully" });
-      setCreateDialogOpen(false);
-      resetForm();
-      fetchData();
-    } catch (error: any) {
-      toast({
-        title: "Error creating shipment",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setFormLoading(false);
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (s) =>
+          s.tracking_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          s.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          s.origin.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          s.destination.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
+
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((s) => s.status === statusFilter);
+    }
+
+    setFilteredShipments(filtered);
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingShipment) return;
-    setFormLoading(true);
+  const handleCreate = () => {
+    setEditingShipment(null);
+    setFormData({
+      tracking_number: `GCL${Date.now().toString().slice(-8)}`,
+      customer_name: "",
+      origin: "",
+      destination: "",
+      vehicle_type: "",
+      service_type: "open_transport",
+      status: "pending",
+      pickup_date: "",
+      delivery_date: "",
+      total_cost: 0,
+    });
+    setIsDialogOpen(true);
+  };
 
-    const oldStatus = editingShipment.status;
-    const newStatus = formData.status;
+  const handleEdit = (shipment: Shipment) => {
+    setEditingShipment(shipment);
+    setFormData({
+      tracking_number: shipment.tracking_number,
+      customer_name: shipment.customer_name,
+      origin: shipment.origin,
+      destination: shipment.destination,
+      vehicle_type: shipment.vehicle_type,
+      service_type: shipment.service_type,
+      status: shipment.status,
+      pickup_date: shipment.pickup_date.split("T")[0],
+      delivery_date: shipment.delivery_date?.split("T")[0] || "",
+      total_cost: shipment.total_cost,
+    });
+    setIsDialogOpen(true);
+  };
 
+  const handleSave = async () => {
     try {
-      const { error } = await supabase
-        .from("shipments")
-        .update({
-          customer_id: formData.customerId,
-          pickup_address: formData.pickupAddress,
-          pickup_city: formData.pickupCity,
-          pickup_state: formData.pickupState,
-          pickup_zip: formData.pickupZip,
-          delivery_address: formData.deliveryAddress,
-          delivery_city: formData.deliveryCity,
-          delivery_state: formData.deliveryState,
-          delivery_zip: formData.deliveryZip,
-          vehicle_type: formData.vehicleType,
-          shipping_type: formData.shippingType,
-          status: formData.status,
-          estimated_delivery_date: formData.estimatedDeliveryDate || null,
-        })
-        .eq("id", editingShipment.id);
-
-      if (error) throw error;
-
-      toast({ title: "Shipment updated successfully" });
-      setEditingShipment(null);
-      resetForm();
-      fetchData();
-
-      if (oldStatus !== newStatus && (newStatus === "in_transit" || newStatus === "delivered")) {
-        supabase.functions
-          .invoke("notify-shipment-status", {
-            body: {
-              shipmentId: editingShipment.id,
-              oldStatus,
-              newStatus,
-            },
+      if (editingShipment) {
+        const { error } = await supabase
+          .from("shipments")
+          .update({
+            tracking_number: formData.tracking_number,
+            origin: formData.origin,
+            destination: formData.destination,
+            vehicle_type: formData.vehicle_type,
+            service_type: formData.service_type,
+            status: formData.status,
+            pickup_date: formData.pickup_date,
+            delivery_date: formData.delivery_date || null,
+            total_cost: formData.total_cost,
           })
-          .then(({ data, error }) => {
-            if (error) {
-              console.error("Email notification failed:", error);
-            } else {
-              console.log("Email notification sent:", data);
-            }
-          })
-          .catch((err) => {
-            console.error("Email notification error:", err);
+          .eq("id", editingShipment.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Shipment updated successfully",
+        });
+      } else {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("full_name", formData.customer_name)
+          .single();
+
+        if (!profile) {
+          toast({
+            title: "Error",
+            description: "Customer not found",
+            variant: "destructive",
           });
+          return;
+        }
+
+        const { error } = await supabase.from("shipments").insert({
+          tracking_number: formData.tracking_number,
+          customer_id: profile.id,
+          origin: formData.origin,
+          destination: formData.destination,
+          vehicle_type: formData.vehicle_type,
+          service_type: formData.service_type,
+          status: formData.status,
+          pickup_date: formData.pickup_date,
+          delivery_date: formData.delivery_date || null,
+          total_cost: formData.total_cost,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Shipment created successfully",
+        });
       }
+
+      setIsDialogOpen(false);
+      fetchShipments();
     } catch (error: any) {
       toast({
-        title: "Error updating shipment",
-        description: error.message,
+        title: "Error",
+        description: error.message || "Failed to save shipment",
         variant: "destructive",
       });
-    } finally {
-      setFormLoading(false);
     }
   };
 
@@ -339,800 +224,106 @@ function AdminShipmentsContent() {
 
       if (error) throw error;
 
-      toast({ title: "Shipment deleted successfully" });
-      fetchData();
+      toast({
+        title: "Success",
+        description: "Shipment deleted successfully",
+      });
+
+      fetchShipments();
     } catch (error: any) {
       toast({
-        title: "Error deleting shipment",
-        description: error.message,
+        title: "Error",
+        description: error.message || "Failed to delete shipment",
         variant: "destructive",
       });
     }
   };
 
-  const openEditDialog = async (shipment: Shipment) => {
-    setEditingShipment(shipment);
-    setFormData({
-      customerId: shipment.customer_id,
-      pickupAddress: shipment.pickup_address,
-      pickupCity: shipment.pickup_city,
-      pickupState: shipment.pickup_state,
-      pickupZip: shipment.pickup_zip,
-      deliveryAddress: shipment.delivery_address,
-      deliveryCity: shipment.delivery_city,
-      deliveryState: shipment.delivery_state,
-      deliveryZip: shipment.delivery_zip,
-      vehicleType: shipment.vehicle_type,
-      shippingType: shipment.shipping_type,
-      status: shipment.status,
-      estimatedDeliveryDate: shipment.estimated_delivery_date || "",
-    });
+  const handleExport = () => {
+    const csv = [
+      ["Tracking Number", "Customer", "Origin", "Destination", "Status", "Pickup Date", "Delivery Date"],
+      ...filteredShipments.map((s) => [
+        s.tracking_number,
+        s.customer_name,
+        s.origin,
+        s.destination,
+        s.status,
+        new Date(s.pickup_date).toLocaleDateString(),
+        s.delivery_date ? new Date(s.delivery_date).toLocaleDateString() : "",
+      ]),
+    ]
+      .map((row) => row.join(","))
+      .join("\n");
 
-    const { data } = await supabase
-      .from("shipment_documents")
-      .select("*")
-      .eq("shipment_id", shipment.id)
-      .order("created_at", { ascending: false });
-
-    setDocuments(data || []);
-  };
-
-  const handleFileUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    documentType: string
-  ) => {
-    if (!editingShipment || !e.target.files || e.target.files.length === 0) return;
-
-    const file = e.target.files[0];
-
-    if (file.type !== "application/pdf") {
-      toast({
-        title: "Invalid file type",
-        description: "Only PDF files are allowed",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setUploadingDoc(true);
-
-    try {
-      const fileExt = "pdf";
-      const fileName = `${editingShipment.id}/${Date.now()}_${documentType}.${fileExt}`;
-
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("shipment-documents")
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      const { error: dbError } = await supabase.from("shipment_documents").insert({
-        shipment_id: editingShipment.id,
-        document_type: documentType,
-        document_name: file.name,
-        file_path: uploadData.path,
-        file_size: file.size,
-      });
-
-      if (dbError) throw dbError;
-
-      toast({ title: "Document uploaded successfully" });
-
-      const { data } = await supabase
-        .from("shipment_documents")
-        .select("*")
-        .eq("shipment_id", editingShipment.id)
-        .order("created_at", { ascending: false });
-
-      setDocuments(data || []);
-    } catch (error: any) {
-      toast({
-        title: "Upload failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setUploadingDoc(false);
-      e.target.value = "";
-    }
-  };
-
-  const downloadDocument = async (doc: ShipmentDocument) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from("shipment-documents")
-        .download(doc.file_path);
-
-      if (error) throw error;
-
-      const url = URL.createObjectURL(data);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = doc.document_name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (error: any) {
-      toast({
-        title: "Download failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const deleteDocument = async (docId: string) => {
-    if (!confirm("Are you sure you want to delete this document?")) return;
-
-    try {
-      const doc = documents.find((d) => d.id === docId);
-      if (!doc) return;
-
-      const { error: storageError } = await supabase.storage
-        .from("shipment-documents")
-        .remove([doc.file_path]);
-
-      if (storageError) throw storageError;
-
-      const { error: dbError } = await supabase
-        .from("shipment_documents")
-        .delete()
-        .eq("id", docId);
-
-      if (dbError) throw dbError;
-
-      toast({ title: "Document deleted successfully" });
-      setDocuments(documents.filter((d) => d.id !== docId));
-    } catch (error: any) {
-      toast({
-        title: "Delete failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      customerId: "",
-      pickupAddress: "",
-      pickupCity: "",
-      pickupState: "",
-      pickupZip: "",
-      deliveryAddress: "",
-      deliveryCity: "",
-      deliveryState: "",
-      deliveryZip: "",
-      vehicleType: "",
-      shippingType: "standard",
-      status: "pending_pickup",
-      estimatedDeliveryDate: "",
-    });
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({ title: "Logged out successfully" });
-    router.push("/");
-  };
-
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      pending_pickup: "bg-yellow-500",
-      picked_up: "bg-blue-500",
-      in_transit: "bg-primary",
-      at_hub: "bg-orange-500",
-      out_for_delivery: "bg-accent",
-      delivered: "bg-green-500",
-    };
-    return colors[status] || "bg-muted";
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `shipments-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
   };
 
   return (
-    <>
-      <SEO title="Manage Shipments" description="Create and manage customer shipments." />
+    <ProtectedRoute requireAdmin>
       <div className="min-h-screen bg-background">
-        <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
-          <div className="container flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 font-mono text-xl font-bold">
-              <Truck className="h-6 w-6 text-primary" />
-              <span>GO CARGO ADMIN</span>
-            </Link>
+        <Header />
 
-            <div className="hidden md:flex items-center gap-6">
-              <Link href="/admin/dashboard" className="text-sm font-medium hover:text-primary transition-colors">
-                Dashboard
-              </Link>
-              <Link href="/admin/shipments" className="text-sm font-medium text-primary">
-                Shipments
-              </Link>
-              <Link href="/admin/quotes" className="text-sm font-medium hover:text-primary transition-colors">
-                Quotes
-              </Link>
-            </div>
-
-            <div className="hidden md:flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">Admin: {adminName || "User"}</span>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-
-            <button
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
-
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-border bg-card">
-              <div className="container py-4 flex flex-col gap-3">
-                <Link href="/admin/dashboard" className="py-2 text-sm font-medium hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
-                  Dashboard
-                </Link>
-                <Link href="/admin/shipments" className="py-2 text-sm font-medium text-primary" onClick={() => setMobileMenuOpen(false)}>
-                  Shipments
-                </Link>
-                <Link href="/admin/quotes" className="py-2 text-sm font-medium hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
-                  Quotes
-                </Link>
-                <Button variant="ghost" className="justify-start" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-                </Button>
+        <main className="container mx-auto px-4 py-8">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <CardTitle className="text-2xl">Shipment Management</CardTitle>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={handleExport}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
+                  <Button onClick={handleCreate}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Shipment
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
-        </nav>
+            </CardHeader>
 
-        <main className="container py-8">
-          <div className="mb-8 flex items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Shipment Management</h1>
-              <p className="text-muted-foreground">Create and manage customer shipments</p>
-            </div>
-            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="font-mono">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Shipment
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Create New Shipment</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleCreate} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Customer *</Label>
-                    <Select
-                      value={formData.customerId}
-                      onValueChange={(value) => setFormData({ ...formData, customerId: value })}
-                      required
-                    >
-                      <SelectTrigger className="bg-background">
-                        <SelectValue placeholder="Select customer" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {customers.map((customer) => (
-                          <SelectItem key={customer.id} value={customer.id}>
-                            {customer.full_name} ({customer.email})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Pickup Address *</Label>
-                    <Input
-                      placeholder="Street address"
-                      value={formData.pickupAddress}
-                      onChange={(e) => setFormData({ ...formData, pickupAddress: e.target.value })}
-                      required
-                      className="bg-background"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Pickup City *</Label>
-                      <Input
-                        value={formData.pickupCity}
-                        onChange={(e) => setFormData({ ...formData, pickupCity: e.target.value })}
-                        required
-                        className="bg-background"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Pickup State *</Label>
-                      <Input
-                        placeholder="e.g., CA"
-                        value={formData.pickupState}
-                        onChange={(e) => setFormData({ ...formData, pickupState: e.target.value })}
-                        required
-                        className="bg-background"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Pickup ZIP Code *</Label>
-                    <Input
-                      value={formData.pickupZip}
-                      onChange={(e) => setFormData({ ...formData, pickupZip: e.target.value })}
-                      required
-                      className="bg-background"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Delivery Address *</Label>
-                    <Input
-                      placeholder="Street address"
-                      value={formData.deliveryAddress}
-                      onChange={(e) => setFormData({ ...formData, deliveryAddress: e.target.value })}
-                      required
-                      className="bg-background"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Delivery City *</Label>
-                      <Input
-                        value={formData.deliveryCity}
-                        onChange={(e) => setFormData({ ...formData, deliveryCity: e.target.value })}
-                        required
-                        className="bg-background"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Delivery State *</Label>
-                      <Input
-                        placeholder="e.g., NY"
-                        value={formData.deliveryState}
-                        onChange={(e) => setFormData({ ...formData, deliveryState: e.target.value })}
-                        required
-                        className="bg-background"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Delivery ZIP Code *</Label>
-                    <Input
-                      value={formData.deliveryZip}
-                      onChange={(e) => setFormData({ ...formData, deliveryZip: e.target.value })}
-                      required
-                      className="bg-background"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Vehicle Type *</Label>
-                    <Select
-                      value={formData.vehicleType}
-                      onValueChange={(value) => setFormData({ ...formData, vehicleType: value })}
-                      required
-                    >
-                      <SelectTrigger className="bg-background">
-                        <SelectValue placeholder="Select vehicle type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="sedan">Sedan</SelectItem>
-                        <SelectItem value="suv">SUV</SelectItem>
-                        <SelectItem value="truck">Truck</SelectItem>
-                        <SelectItem value="motorcycle">Motorcycle</SelectItem>
-                        <SelectItem value="van">Van</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Shipping Type *</Label>
-                    <Select
-                      value={formData.shippingType}
-                      onValueChange={(value) => setFormData({ ...formData, shippingType: value })}
-                      required
-                    >
-                      <SelectTrigger className="bg-background">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="standard">Standard</SelectItem>
-                        <SelectItem value="expedited">Expedited</SelectItem>
-                        <SelectItem value="enclosed">Enclosed Carrier</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Status *</Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(value) => setFormData({ ...formData, status: value })}
-                      required
-                    >
-                      <SelectTrigger className="bg-background">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending_pickup">Pending Pickup</SelectItem>
-                        <SelectItem value="picked_up">Picked Up</SelectItem>
-                        <SelectItem value="in_transit">In Transit</SelectItem>
-                        <SelectItem value="at_hub">At Hub</SelectItem>
-                        <SelectItem value="customs_clearance">Customs Clearance</SelectItem>
-                        <SelectItem value="out_for_delivery">Out For Delivery</SelectItem>
-                        <SelectItem value="delivered">Delivered</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Estimated Delivery Date</Label>
-                    <Input
-                      type="date"
-                      value={formData.estimatedDeliveryDate}
-                      onChange={(e) => setFormData({ ...formData, estimatedDeliveryDate: e.target.value })}
-                      className="bg-background"
-                    />
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <Button type="submit" className="flex-1 font-mono" disabled={formLoading}>
-                      {formLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Creating...
-                        </>
-                      ) : (
-                        "Create Shipment"
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setCreateDialogOpen(false);
-                        resetForm();
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          <div className="mb-6">
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by tracking number, customer, or address..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-background"
+            <CardContent>
+              <ShipmentFilters
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
               />
-            </div>
-          </div>
 
-          {loading ? (
-            <Card className="p-12 text-center border-border">
-              <p className="text-muted-foreground">Loading shipments...</p>
-            </Card>
-          ) : filteredShipments.length === 0 ? (
-            <Card className="p-12 text-center border-border">
-              <p className="text-muted-foreground">
-                {searchTerm ? "No matching shipments found" : "No shipments yet"}
-              </p>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {filteredShipments.map((shipment) => (
-                <Card key={shipment.id} className="p-6 border-border">
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <p className="font-mono font-bold text-lg">{shipment.tracking_number}</p>
-                        <span className={`px-2 py-1 rounded-sm text-xs font-medium text-background capitalize ${getStatusColor(shipment.status)}`}>
-                          {shipment.status.replace(/_/g, " ")}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Customer: {shipment.profiles?.full_name} ({shipment.profiles?.email})
-                      </p>
-                      <p className="text-sm text-muted-foreground capitalize">
-                        Vehicle: {shipment.vehicle_type}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Dialog open={editingShipment?.id === shipment.id} onOpenChange={(open) => !open && setEditingShipment(null)}>
-                        <DialogTrigger asChild>
-                          <Button size="sm" variant="outline" onClick={() => openEditDialog(shipment)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>Edit Shipment</DialogTitle>
-                          </DialogHeader>
-                          <form onSubmit={handleUpdate} className="space-y-4">
-                            <div className="space-y-2">
-                              <Label>Customer *</Label>
-                              <Select
-                                value={formData.customerId}
-                                onValueChange={(value) => setFormData({ ...formData, customerId: value })}
-                                required
-                              >
-                                <SelectTrigger className="bg-background">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {customers.map((customer) => (
-                                    <SelectItem key={customer.id} value={customer.id}>
-                                      {customer.full_name} ({customer.email})
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label>Pickup Address *</Label>
-                              <Input
-                                value={formData.pickupAddress}
-                                onChange={(e) => setFormData({ ...formData, pickupAddress: e.target.value })}
-                                required
-                                className="bg-background"
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label>Delivery Address *</Label>
-                              <Input
-                                value={formData.deliveryAddress}
-                                onChange={(e) => setFormData({ ...formData, deliveryAddress: e.target.value })}
-                                required
-                                className="bg-background"
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label>Vehicle Type *</Label>
-                              <Select
-                                value={formData.vehicleType}
-                                onValueChange={(value) => setFormData({ ...formData, vehicleType: value })}
-                                required
-                              >
-                                <SelectTrigger className="bg-background">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="sedan">Sedan</SelectItem>
-                                  <SelectItem value="suv">SUV</SelectItem>
-                                  <SelectItem value="truck">Truck</SelectItem>
-                                  <SelectItem value="motorcycle">Motorcycle</SelectItem>
-                                  <SelectItem value="van">Van</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label>Status *</Label>
-                              <Select
-                                value={formData.status}
-                                onValueChange={(value) => setFormData({ ...formData, status: value })}
-                                required
-                              >
-                                <SelectTrigger className="bg-background">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="pending_pickup">Pending Pickup</SelectItem>
-                                  <SelectItem value="picked_up">Picked Up</SelectItem>
-                                  <SelectItem value="in_transit">In Transit</SelectItem>
-                                  <SelectItem value="at_hub">At Hub</SelectItem>
-                                  <SelectItem value="customs_clearance">Customs Clearance</SelectItem>
-                                  <SelectItem value="out_for_delivery">Out For Delivery</SelectItem>
-                                  <SelectItem value="delivered">Delivered</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label>Estimated Delivery Date</Label>
-                              <Input
-                                type="date"
-                                value={formData.estimatedDeliveryDate}
-                                onChange={(e) => setFormData({ ...formData, estimatedDeliveryDate: e.target.value })}
-                                className="bg-background"
-                              />
-                            </div>
-
-                            <div className="border-t border-border pt-4">
-                              <h3 className="font-mono font-bold mb-4">Shipping Documents</h3>
-                              
-                              <div className="grid grid-cols-2 gap-3 mb-4">
-                                <div>
-                                  <Label htmlFor="bol-upload" className="cursor-pointer">
-                                    <div className="border-2 border-dashed border-border rounded p-4 hover:border-primary transition-colors text-center">
-                                      <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-                                      <p className="text-sm font-medium">Bill of Lading</p>
-                                      <p className="text-xs text-muted-foreground">PDF only</p>
-                                    </div>
-                                  </Label>
-                                  <Input
-                                    id="bol-upload"
-                                    type="file"
-                                    accept="application/pdf"
-                                    onChange={(e) => handleFileUpload(e, "bill_of_lading")}
-                                    disabled={uploadingDoc}
-                                    className="hidden"
-                                  />
-                                </div>
-
-                                <div>
-                                  <Label htmlFor="invoice-upload" className="cursor-pointer">
-                                    <div className="border-2 border-dashed border-border rounded p-4 hover:border-primary transition-colors text-center">
-                                      <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-                                      <p className="text-sm font-medium">Invoice</p>
-                                      <p className="text-xs text-muted-foreground">PDF only</p>
-                                    </div>
-                                  </Label>
-                                  <Input
-                                    id="invoice-upload"
-                                    type="file"
-                                    accept="application/pdf"
-                                    onChange={(e) => handleFileUpload(e, "invoice")}
-                                    disabled={uploadingDoc}
-                                    className="hidden"
-                                  />
-                                </div>
-
-                                <div>
-                                  <Label htmlFor="receipt-upload" className="cursor-pointer">
-                                    <div className="border-2 border-dashed border-border rounded p-4 hover:border-primary transition-colors text-center">
-                                      <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-                                      <p className="text-sm font-medium">Receipt</p>
-                                      <p className="text-xs text-muted-foreground">PDF only</p>
-                                    </div>
-                                  </Label>
-                                  <Input
-                                    id="receipt-upload"
-                                    type="file"
-                                    accept="application/pdf"
-                                    onChange={(e) => handleFileUpload(e, "delivery_receipt")}
-                                    disabled={uploadingDoc}
-                                    className="hidden"
-                                  />
-                                </div>
-
-                                <div>
-                                  <Label htmlFor="other-upload" className="cursor-pointer">
-                                    <div className="border-2 border-dashed border-border rounded p-4 hover:border-primary transition-colors text-center">
-                                      <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-                                      <p className="text-sm font-medium">Other</p>
-                                      <p className="text-xs text-muted-foreground">PDF only</p>
-                                    </div>
-                                  </Label>
-                                  <Input
-                                    id="other-upload"
-                                    type="file"
-                                    accept="application/pdf"
-                                    onChange={(e) => handleFileUpload(e, "other")}
-                                    disabled={uploadingDoc}
-                                    className="hidden"
-                                  />
-                                </div>
-                              </div>
-
-                              {documents.length > 0 && (
-                                <div className="space-y-2">
-                                  <p className="text-sm font-medium mb-2">Uploaded Documents</p>
-                                  {documents.map((doc) => (
-                                    <div
-                                      key={doc.id}
-                                      className="flex items-center justify-between p-3 bg-background rounded border border-border"
-                                    >
-                                      <div className="flex items-center gap-3 flex-1">
-                                        <FileText className="h-4 w-4 text-primary" />
-                                        <div className="flex-1 min-w-0">
-                                          <p className="text-sm font-medium truncate">{doc.document_name}</p>
-                                          <p className="text-xs text-muted-foreground capitalize">
-                                            {doc.document_type.replace(/_/g, " ")} • {(doc.file_size / 1024).toFixed(1)} KB
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <div className="flex gap-2">
-                                        <Button
-                                          size="sm"
-                                          variant="ghost"
-                                          onClick={() => downloadDocument(doc)}
-                                        >
-                                          <Download className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                          size="sm"
-                                          variant="ghost"
-                                          onClick={() => deleteDocument(doc.id)}
-                                        >
-                                          <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="flex gap-3 pt-4">
-                              <Button type="submit" className="flex-1 font-mono" disabled={formLoading}>
-                                {formLoading ? (
-                                  <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Updating...
-                                  </>
-                                ) : (
-                                  "Update Shipment"
-                                )}
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => {
-                                  setEditingShipment(null);
-                                  resetForm();
-                                }}
-                              >
-                                Cancel
-                              </Button>
-                            </div>
-                          </form>
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDelete(shipment.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground mb-1">Pickup</p>
-                      <p>{shipment.pickup_address}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground mb-1">Delivery</p>
-                      <p>{shipment.delivery_address}</p>
-                    </div>
-                  </div>
-
-                  {shipment.estimated_delivery_date && (
-                    <p className="text-xs text-muted-foreground mt-4">
-                      Est. Delivery: {new Date(shipment.estimated_delivery_date).toLocaleDateString()}
-                    </p>
-                  )}
-                </Card>
-              ))}
-            </div>
-          )}
+              {loading ? (
+                <div className="text-center py-8 text-muted-foreground">Loading shipments...</div>
+              ) : (
+                <ShipmentTable
+                  shipments={filteredShipments}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              )}
+            </CardContent>
+          </Card>
         </main>
+
+        <Footer />
+
+        <ShipmentDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          shipment={formData}
+          onShipmentChange={(field, value) => setFormData({ ...formData, [field]: value })}
+          onSave={handleSave}
+          mode={editingShipment ? "edit" : "create"}
+        />
       </div>
-    </>
+    </ProtectedRoute>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {},
+  };
+};
