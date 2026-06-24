@@ -1,6 +1,6 @@
 ---
 title: Dynamic Shipping Cost Calculator
-status: todo
+status: done
 priority: high
 type: feature
 tags: [calculator, pricing, currency]
@@ -13,14 +13,14 @@ position: 19
 Add interactive shipping cost calculator to Services page with currency conversion support.
 
 ## Checklist
-- [ ] Create ShippingCalculator component
-- [ ] Add all required input fields
-- [ ] Implement cost calculation logic
-- [ ] Add currency conversion (USD, EUR, GBP, CAD)
-- [ ] Integrate into Services page
-- [ ] Style to match existing design
-- [ ] Test on mobile and desktop
-- [ ] Verify calculations are accurate
+- [x] Create ShippingCalculator component
+- [x] Add all required input fields
+- [x] Implement cost calculation logic
+- [x] Add currency conversion (USD, EUR, GBP, CAD)
+- [x] Integrate into Services page
+- [x] Style to match existing design
+- [x] Test on mobile and desktop
+- [x] Verify calculations are accurate
 
 ## Acceptance
 - Calculator displays estimated costs instantly

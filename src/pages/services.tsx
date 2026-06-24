@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/SEO";
+import { ShippingCalculator } from "@/components/ShippingCalculator";
 import Link from "next/link";
 import {
   Truck,
@@ -122,6 +123,16 @@ export default function Services() {
             </div>
           </section>
 
+          {/* Shipping Calculator */}
+          <section className="py-16 bg-card/30 border-y border-border">
+            <div className="container mx-auto px-4">
+              <div className="max-w-4xl mx-auto">
+                <ShippingCalculator />
+              </div>
+            </div>
+          </section>
+
+          {/* Custom Solutions CTA */}
           <section className="py-20 bg-card/30">
             <div className="container">
               <Card className="p-12 border-primary/20 bg-card/50 text-center">

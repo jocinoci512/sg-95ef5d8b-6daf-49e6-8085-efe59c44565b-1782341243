@@ -1,12 +1,14 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import { useRouter } from "next/router";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function TrackingForm() {
-  const [trackingNumber, setTrackingNumber] = useState("");
   const router = useRouter();
+  const { t } = useLanguage();
+  const [trackingNumber, setTrackingNumber] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,18 +18,20 @@ export function TrackingForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 w-full max-w-xl">
-      <Input
-        type="text"
-        placeholder="Enter tracking number"
-        value={trackingNumber}
-        onChange={(e) => setTrackingNumber(e.target.value)}
-        className="flex-1 h-12 font-data bg-card"
-        required
-      />
-      <Button type="submit" size="lg" className="font-mono px-8">
-        <Search className="h-4 w-4 mr-2" />
-        Track
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder={t("track.placeholder")}
+          value={trackingNumber}
+          onChange={(e) => setTrackingNumber(e.target.value)}
+          className="pl-10 h-12 bg-background"
+          required
+        />
+      </div>
+      <Button type="submit" size="lg" className="font-mono">
+        {t("track.button")}
       </Button>
     </form>
   );

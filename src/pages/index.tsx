@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/SEO";
 import { TrackingForm } from "@/components/TrackingForm";
 import { StatsDisplay } from "@/components/StatsDisplay";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Truck,
   Ship,
@@ -34,6 +35,8 @@ import {
 } from "@/components/ui/accordion";
 
 export default function Home() {
+  const { t } = useLanguage();
+
   return (
     <>
       <SEO
@@ -61,23 +64,22 @@ export default function Home() {
             <div className="container mx-auto px-4 relative z-10 py-20">
               <div className="max-w-3xl">
                 <h1 className="text-5xl md:text-6xl font-bold mb-6 text-foreground">
-                  Professional Logistics Solutions
-                  <span className="block text-primary mt-2">Worldwide Shipping Excellence</span>
+                  {t("hero.title")}
+                  <span className="block text-primary mt-2">{t("hero.subtitle")}</span>
                 </h1>
                 <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                  Secure, reliable transportation services for vehicles, freight, and heavy equipment.
-                  Trusted by thousands of customers across the globe.
+                  {t("hero.description")}
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Link href="/quote">
                     <Button size="lg" className="font-mono text-lg">
-                      Get Instant Quote
+                      {t("hero.getQuote")}
                       <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
                   <Link href="/track">
                     <Button size="lg" variant="outline" className="font-mono text-lg">
-                      Track Shipment
+                      {t("hero.trackShipment")}
                     </Button>
                   </Link>
                 </div>
@@ -91,27 +93,27 @@ export default function Home() {
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                 <div className="flex flex-col items-center text-center p-4">
                   <Shield className="h-10 w-10 text-primary mb-2" />
-                  <p className="text-sm font-medium">Licensed & Insured</p>
+                  <p className="text-sm font-medium">{t("trust.licensed")}</p>
                 </div>
                 <div className="flex flex-col items-center text-center p-4">
                   <CheckCircle2 className="h-10 w-10 text-green-500 mb-2" />
-                  <p className="text-sm font-medium">Verified Carriers</p>
+                  <p className="text-sm font-medium">{t("trust.verified")}</p>
                 </div>
                 <div className="flex flex-col items-center text-center p-4">
                   <Globe className="h-10 w-10 text-accent mb-2" />
-                  <p className="text-sm font-medium">Worldwide Coverage</p>
+                  <p className="text-sm font-medium">{t("trust.worldwide")}</p>
                 </div>
                 <div className="flex flex-col items-center text-center p-4">
                   <Clock className="h-10 w-10 text-primary mb-2" />
-                  <p className="text-sm font-medium">24/7 Support</p>
+                  <p className="text-sm font-medium">{t("trust.support")}</p>
                 </div>
                 <div className="flex flex-col items-center text-center p-4">
                   <Award className="h-10 w-10 text-amber-500 mb-2" />
-                  <p className="text-sm font-medium">Industry Excellence</p>
+                  <p className="text-sm font-medium">{t("trust.excellence")}</p>
                 </div>
                 <div className="flex flex-col items-center text-center p-4">
                   <Star className="h-10 w-10 text-primary mb-2" />
-                  <p className="text-sm font-medium">5-Star Service</p>
+                  <p className="text-sm font-medium">{t("trust.service")}</p>
                 </div>
               </div>
             </div>
@@ -121,27 +123,27 @@ export default function Home() {
           <section className="py-16 bg-background">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold mb-4">Trusted by Thousands</h2>
+                <h2 className="text-3xl font-bold mb-4">{t("stats.title")}</h2>
                 <p className="text-muted-foreground text-lg">
-                  Over two decades of excellence in logistics and transportation
+                  {t("stats.subtitle")}
                 </p>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <Card className="p-8 text-center border-border">
                   <div className="text-4xl font-bold text-primary mb-2 font-mono">25+</div>
-                  <p className="text-muted-foreground">Years Experience</p>
+                  <p className="text-muted-foreground">{t("stats.years")}</p>
                 </Card>
                 <Card className="p-8 text-center border-border">
                   <div className="text-4xl font-bold text-primary mb-2 font-mono">500K+</div>
-                  <p className="text-muted-foreground">Shipments Completed</p>
+                  <p className="text-muted-foreground">{t("stats.shipments")}</p>
                 </Card>
                 <Card className="p-8 text-center border-border">
                   <div className="text-4xl font-bold text-primary mb-2 font-mono">98.7%</div>
-                  <p className="text-muted-foreground">On-Time Delivery</p>
+                  <p className="text-muted-foreground">{t("stats.ontime")}</p>
                 </Card>
                 <Card className="p-8 text-center border-border">
                   <div className="text-4xl font-bold text-primary mb-2 font-mono">50+</div>
-                  <p className="text-muted-foreground">Countries Served</p>
+                  <p className="text-muted-foreground">{t("stats.countries")}</p>
                 </Card>
               </div>
             </div>
@@ -151,9 +153,9 @@ export default function Home() {
           <section className="py-16 bg-card/30">
             <div className="container mx-auto px-4">
               <div className="max-w-2xl mx-auto text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">Track Your Shipment</h2>
+                <h2 className="text-3xl font-bold mb-4">{t("track.title")}</h2>
                 <p className="text-muted-foreground mb-8">
-                  Enter your tracking number for real-time shipment updates
+                  {t("track.description")}
                 </p>
                 <TrackingForm />
               </div>
@@ -164,9 +166,9 @@ export default function Home() {
           <section className="py-16 bg-background">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold mb-4">Comprehensive Logistics Services</h2>
+                <h2 className="text-3xl font-bold mb-4">{t("services.title")}</h2>
                 <p className="text-muted-foreground text-lg">
-                  End-to-end transportation solutions for all your shipping needs
+                  {t("services.subtitle")}
                 </p>
               </div>
 
@@ -180,13 +182,13 @@ export default function Home() {
                     />
                   </div>
                   <Truck className="h-10 w-10 text-primary mb-4" />
-                  <h3 className="text-xl font-bold mb-2">Auto Transport</h3>
+                  <h3 className="text-xl font-bold mb-2">{t("service.auto.title")}</h3>
                   <p className="text-muted-foreground mb-4">
-                    Safe and reliable vehicle shipping nationwide. Open and enclosed carrier options available.
+                    {t("service.auto.desc")}
                   </p>
                   <Link href="/services#auto-transport">
                     <Button variant="link" className="p-0 h-auto font-mono">
-                      Learn More <ChevronRight className="ml-1 h-4 w-4" />
+                      {t("services.learnMore")} <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
                   </Link>
                 </Card>
@@ -200,13 +202,13 @@ export default function Home() {
                     />
                   </div>
                   <Ship className="h-10 w-10 text-primary mb-4" />
-                  <h3 className="text-xl font-bold mb-2">International Shipping</h3>
+                  <h3 className="text-xl font-bold mb-2">{t("service.international.title")}</h3>
                   <p className="text-muted-foreground mb-4">
-                    Global freight forwarding with customs clearance and door-to-door delivery worldwide.
+                    {t("service.international.desc")}
                   </p>
                   <Link href="/services#international">
                     <Button variant="link" className="p-0 h-auto font-mono">
-                      Learn More <ChevronRight className="ml-1 h-4 w-4" />
+                      {t("services.learnMore")} <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
                   </Link>
                 </Card>
@@ -220,13 +222,13 @@ export default function Home() {
                     />
                   </div>
                   <Package className="h-10 w-10 text-primary mb-4" />
-                  <h3 className="text-xl font-bold mb-2">Heavy Equipment</h3>
+                  <h3 className="text-xl font-bold mb-2">{t("service.heavy.title")}</h3>
                   <p className="text-muted-foreground mb-4">
-                    Specialized transport for construction equipment, machinery, and oversized cargo.
+                    {t("service.heavy.desc")}
                   </p>
                   <Link href="/services#heavy-equipment">
                     <Button variant="link" className="p-0 h-auto font-mono">
-                      Learn More <ChevronRight className="ml-1 h-4 w-4" />
+                      {t("services.learnMore")} <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
                   </Link>
                 </Card>
@@ -240,13 +242,13 @@ export default function Home() {
                     />
                   </div>
                   <Plane className="h-10 w-10 text-primary mb-4" />
-                  <h3 className="text-xl font-bold mb-2">Motorcycle Transport</h3>
+                  <h3 className="text-xl font-bold mb-2">{t("service.motorcycle.title")}</h3>
                   <p className="text-muted-foreground mb-4">
-                    Professional motorcycle shipping with secure loading and specialized equipment.
+                    {t("service.motorcycle.desc")}
                   </p>
                   <Link href="/services#motorcycle">
                     <Button variant="link" className="p-0 h-auto font-mono">
-                      Learn More <ChevronRight className="ml-1 h-4 w-4" />
+                      {t("services.learnMore")} <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
                   </Link>
                 </Card>
@@ -260,13 +262,13 @@ export default function Home() {
                     />
                   </div>
                   <Shield className="h-10 w-10 text-primary mb-4" />
-                  <h3 className="text-xl font-bold mb-2">Enclosed Carrier</h3>
+                  <h3 className="text-xl font-bold mb-2">{t("service.enclosed.title")}</h3>
                   <p className="text-muted-foreground mb-4">
-                    Premium enclosed transport for luxury, classic, and high-value vehicles.
+                    {t("service.enclosed.desc")}
                   </p>
                   <Link href="/services#enclosed">
                     <Button variant="link" className="p-0 h-auto font-mono">
-                      Learn More <ChevronRight className="ml-1 h-4 w-4" />
+                      {t("services.learnMore")} <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
                   </Link>
                 </Card>
@@ -280,13 +282,13 @@ export default function Home() {
                     />
                   </div>
                   <TrendingUp className="h-10 w-10 text-primary mb-4" />
-                  <h3 className="text-xl font-bold mb-2">Fleet Transportation</h3>
+                  <h3 className="text-xl font-bold mb-2">{t("service.fleet.title")}</h3>
                   <p className="text-muted-foreground mb-4">
-                    Multi-vehicle transport solutions for dealerships and corporate fleets.
+                    {t("service.fleet.desc")}
                   </p>
                   <Link href="/services#fleet">
                     <Button variant="link" className="p-0 h-auto font-mono">
-                      Learn More <ChevronRight className="ml-1 h-4 w-4" />
+                      {t("services.learnMore")} <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
                   </Link>
                 </Card>
@@ -298,9 +300,9 @@ export default function Home() {
           <section className="py-16 bg-card/30">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold mb-4">Why Choose Go Cargo Logistics</h2>
+                <h2 className="text-3xl font-bold mb-4">{t("why.title")}</h2>
                 <p className="text-muted-foreground text-lg">
-                  Industry-leading service backed by decades of experience
+                  {t("why.subtitle")}
                 </p>
               </div>
 
@@ -372,9 +374,9 @@ export default function Home() {
           <section className="py-16 bg-background">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold mb-4">What Our Customers Say</h2>
+                <h2 className="text-3xl font-bold mb-4">{t("testimonials.title")}</h2>
                 <p className="text-muted-foreground text-lg">
-                  Trusted by thousands of satisfied customers worldwide
+                  {t("testimonials.subtitle")}
                 </p>
               </div>
 
@@ -426,9 +428,9 @@ export default function Home() {
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto">
                 <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
+                  <h2 className="text-3xl font-bold mb-4">{t("faq.title")}</h2>
                   <p className="text-muted-foreground">
-                    Find answers to common questions about our shipping services
+                    {t("faq.subtitle")}
                   </p>
                 </div>
 
@@ -514,9 +516,9 @@ export default function Home() {
             <div className="container mx-auto px-4">
               <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div>
-                  <h2 className="text-3xl font-bold mb-6">Nationwide & Worldwide Coverage</h2>
+                  <h2 className="text-3xl font-bold mb-6">{t("coverage.title")}</h2>
                   <p className="text-muted-foreground mb-6 text-lg">
-                    Our extensive carrier network provides comprehensive coverage across all 50 U.S. states and over 50 countries worldwide. From major metropolitan areas to remote locations, we deliver anywhere you need.
+                    {t("coverage.description")}
                   </p>
                   <div className="space-y-4 mb-8">
                     <div className="flex items-start gap-3">
@@ -540,7 +542,7 @@ export default function Home() {
                   </div>
                   <Link href="/quote">
                     <Button size="lg" className="font-mono">
-                      Get Free Quote
+                      {t("services.getQuote")}
                       <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
@@ -559,25 +561,25 @@ export default function Home() {
           {/* Final CTA */}
           <section className="py-16 bg-gradient-to-br from-primary/10 to-accent/10 border-y border-border">
             <div className="container mx-auto px-4 text-center">
-              <h2 className="text-3xl font-bold mb-4">Ready to Ship?</h2>
+              <h2 className="text-3xl font-bold mb-4">{t("cta.ready")}</h2>
               <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
-                Get an instant quote, track your shipment, or speak with a logistics specialist today.
+                {t("cta.description")}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Link href="/quote">
                   <Button size="lg" className="font-mono">
-                    Request Quote
+                    {t("cta.requestQuote")}
                   </Button>
                 </Link>
                 <Link href="/track">
                   <Button size="lg" variant="outline" className="font-mono">
-                    Track Shipment
+                    {t("hero.trackShipment")}
                   </Button>
                 </Link>
                 <Link href="/contact">
                   <Button size="lg" variant="outline" className="font-mono">
                     <Phone className="mr-2 h-5 w-5" />
-                    Contact Us
+                    {t("cta.contactUs")}
                   </Button>
                 </Link>
               </div>
