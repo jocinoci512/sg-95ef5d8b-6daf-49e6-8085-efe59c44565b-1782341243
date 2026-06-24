@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
+import type { GetServerSideProps } from "next";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, Clock, ArrowLeft, Loader2 } from "lucide-react";
 
@@ -213,3 +214,9 @@ export default function BlogPost() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {},
+  };
+};

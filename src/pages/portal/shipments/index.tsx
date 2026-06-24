@@ -1,7 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import type { GetServerSideProps } from "next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -37,6 +40,12 @@ export default function Shipments() {
     </ProtectedRoute>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {},
+  };
+};
 
 function ShipmentsContent() {
   const router = useRouter();
