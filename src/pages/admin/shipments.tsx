@@ -228,6 +228,9 @@ function AdminShipmentsContent() {
     if (!editingShipment) return;
     setFormLoading(true);
 
+    const oldStatus = editingShipment.status;
+    const newStatus = formData.status;
+
     try {
       const { error } = await supabase
         .from("shipments")
@@ -254,6 +257,27 @@ function AdminShipmentsContent() {
       setEditingShipment(null);
       resetForm();
       fetchData();
+
+      if (oldStatus !== newStatus && (newStatus === "in_transit" || newStatus === "delivered")) {
+        supabase.functions
+          .invoke("notify-shipment-status", {
+            body: {
+              shipmentId: editingShipment.id,
+              oldStatus,
+              newStatus,
+            },
+          })
+          .then(({ data, error }) => {
+            if (error) {
+              console.error("Email notification failed:", error);
+            } else {
+              console.log("Email notification sent:", data);
+            }
+          })
+          .catch((err) => {
+            console.error("Email notification error:", err);
+          });
+      }
     } catch (error: any) {
       toast({
         title: "Error updating shipment",
