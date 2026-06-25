@@ -1,480 +1,401 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { ShipmentService } from "@/services/shipmentService";
+import { supabase } from "@/integrations/supabase/client";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { Card } from "@/components/ui/card";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { SEO } from "@/components/SEO";
-import { useToast } from "@/hooks/use-toast";
-import type { GetServerSideProps } from "next";
-import { supabase } from "@/integrations/supabase/client";
 import {
   Package,
-  DollarSign,
   TrendingUp,
-  Clock,
-  Eye,
-  Edit,
   CheckCircle2,
-  AlertCircle,
-  Truck,
-  LogOut,
-  X,
-  Menu,
+  Clock,
+  XCircle,
+  PauseCircle,
+  DollarSign,
+  TruckIcon,
   Users,
   FileText,
-  LayoutDashboard,
+  Activity,
+  Plus,
+  ArrowRight,
+  Plane,
+  Ship,
+  Train,
+  AlertTriangle,
 } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
-interface VolumeData {
-  date: string;
-  count: number;
+interface DashboardStats {
+  total: number;
+  active: number;
+  delivered: number;
+  delayed: number;
+  cancelled: number;
+  onHold: number;
+  revenue: number;
+}
+
+interface RecentShipment {
+  id: string;
+  tracking_number: string;
+  sender_name: string;
+  receiver_name: string;
+  status: string;
+  shipment_type: string;
+  destination_city: string;
+  destination_country: string;
+  created_at: string;
 }
 
 export default function AdminDashboard() {
-  return (
-    <ProtectedRoute>
-      <AdminDashboardContent />
-    </ProtectedRoute>
-  );
-}
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  return {
-    props: {},
-  };
-};
-
-function AdminDashboardContent() {
   const router = useRouter();
-  const { toast } = useToast();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [adminName, setAdminName] = useState("");
-  const [stats, setStats] = useState({
-    totalCustomers: 0,
-    totalShipments: 0,
-    activeShipments: 0,
-    deliveredShipments: 0,
-    pendingQuotes: 0,
+  const [stats, setStats] = useState<DashboardStats>({
+    total: 0,
+    active: 0,
+    delivered: 0,
+    delayed: 0,
+    cancelled: 0,
+    onHold: 0,
+    revenue: 0,
   });
-  const [volumeData, setVolumeData] = useState<VolumeData[]>([]);
-  const [volumeStats, setVolumeStats] = useState({
-    totalThisMonth: 0,
-    avgDaily: 0,
-    highestDay: 0,
-    lowestDay: 0,
-  });
-  const [recentActivity, setRecentActivity] = useState<Array<{
-    id: string;
-    title: string;
-    description: string;
-    time: string;
-  }>>([]);
+  const [recentShipments, setRecentShipments] = useState<RecentShipment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    fetchDashboardData();
-
-    const shipmentsChannel = supabase
-      .channel("dashboard-shipments")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "shipments",
-        },
-        () => {
-          fetchDashboardData();
-        }
-      )
-      .subscribe();
-
-    const profilesChannel = supabase
-      .channel("dashboard-profiles")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "profiles",
-          filter: "role=eq.customer",
-        },
-        () => {
-          fetchDashboardData();
-        }
-      )
-      .subscribe();
-
-    const quotesChannel = supabase
-      .channel("dashboard-quotes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "quote_requests",
-        },
-        () => {
-          fetchDashboardData();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(shipmentsChannel);
-      supabase.removeChannel(profilesChannel);
-      supabase.removeChannel(quotesChannel);
-    };
+    loadDashboardData();
+    loadUserProfile();
   }, []);
 
-  const fetchDashboardData = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
+  const loadUserProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
       const { data: profile } = await supabase
         .from("profiles")
         .select("full_name")
         .eq("id", user.id)
         .single();
-
-      if (profile) setAdminName(profile.full_name);
-
-      const { count: customersCount } = await supabase
-        .from("profiles")
-        .select("*", { count: "exact", head: true })
-        .eq("role", "customer");
-
-      const { count: shipmentsCount } = await supabase
-        .from("shipments")
-        .select("*", { count: "exact", head: true });
-
-      const { count: activeCount } = await supabase
-        .from("shipments")
-        .select("*", { count: "exact", head: true })
-        .neq("status", "delivered");
-
-      const { count: deliveredCount } = await supabase
-        .from("shipments")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "delivered");
-
-      const { count: quotesCount } = await supabase
-        .from("quote_requests")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "pending");
-
-      setStats({
-        totalCustomers: customersCount || 0,
-        totalShipments: shipmentsCount || 0,
-        activeShipments: activeCount || 0,
-        deliveredShipments: deliveredCount || 0,
-        pendingQuotes: quotesCount || 0,
-      });
-
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-      const { data: shipmentsData } = await supabase
-        .from("shipments")
-        .select("created_at")
-        .gte("created_at", thirtyDaysAgo.toISOString())
-        .order("created_at");
-
-      const dateCounts: Record<string, number> = {};
-      const last30Days: VolumeData[] = [];
-
-      for (let i = 29; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split("T")[0];
-        dateCounts[dateStr] = 0;
-        last30Days.push({
-          date: dateStr,
-          count: 0,
-        });
+      
+      if (profile) {
+        setUserName(profile.full_name || "Admin");
       }
+    }
+  };
 
-      if (shipmentsData) {
-        shipmentsData.forEach((shipment) => {
-          const dateStr = shipment.created_at.split("T")[0];
-          if (dateCounts[dateStr] !== undefined) {
-            dateCounts[dateStr]++;
-          }
-        });
+  const loadDashboardData = async () => {
+    try {
+      // Load stats
+      const statsData = await ShipmentService.getDashboardStats();
+      setStats(statsData);
 
-        last30Days.forEach((day) => {
-          day.count = dateCounts[day.date];
-        });
-      }
-
-      setVolumeData(last30Days);
-
-      const counts = last30Days.map((d) => d.count);
-      const nonZeroCounts = counts.filter((c) => c > 0);
-
-      setVolumeStats({
-        totalThisMonth: counts.reduce((a, b) => a + b, 0),
-        avgDaily: counts.reduce((a, b) => a + b, 0) / 30,
-        highestDay: counts.length > 0 ? Math.max(...counts) : 0,
-        lowestDay: nonZeroCounts.length > 0 ? Math.min(...nonZeroCounts) : 0,
-      });
+      // Load recent shipments
+      const shipments = await ShipmentService.getAllShipments();
+      setRecentShipments(shipments.slice(0, 8) as RecentShipment[]);
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
+      console.error("Error loading dashboard:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({ title: "Logged out successfully" });
-    router.push("/");
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      pending: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+      processing: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+      in_transit: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+      out_for_delivery: "bg-cyan-500/10 text-cyan-500 border-cyan-500/20",
+      delivered: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+      delayed: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+      on_hold: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+      cancelled: "bg-red-500/10 text-red-500 border-red-500/20",
+    };
+    return colors[status] || colors.pending;
   };
 
+  const getShipmentIcon = (type: string) => {
+    const icons: Record<string, JSX.Element> = {
+      air_freight: <Plane className="h-4 w-4" />,
+      ocean_freight: <Ship className="h-4 w-4" />,
+      rail_freight: <Train className="h-4 w-4" />,
+      road_freight: <TruckIcon className="h-4 w-4" />,
+    };
+    return icons[type] || <Package className="h-4 w-4" />;
+  };
+
+  if (loading) {
+    return (
+      <ProtectedRoute requireAdmin>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-foreground/60 font-mono">Loading dashboard...</p>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
   return (
-    <>
-      <SEO title="Admin Dashboard" description="Manage shipments, customers, and quotes." />
+    <ProtectedRoute requireAdmin>
       <div className="min-h-screen bg-background">
-        <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
-          <div className="container flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 font-mono text-xl font-bold">
-              <Truck className="h-6 w-6 text-primary" />
-              <span>GO CARGO ADMIN</span>
-            </Link>
-
-            <div className="hidden md:flex items-center gap-6">
-              <Link href="/admin/dashboard" className="text-sm font-medium text-primary">
-                Dashboard
-              </Link>
-              <Link href="/admin/shipments" className="text-sm font-medium hover:text-primary transition-colors">
-                Shipments
-              </Link>
-              <Link href="/admin/quotes" className="text-sm font-medium hover:text-primary transition-colors">
-                Quotes
-              </Link>
-            </div>
-
-            <div className="hidden md:flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">Admin: {adminName || "User"}</span>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-
-            <button
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+        <Header />
+        
+        <main className="container mx-auto px-4 py-8 mt-20">
+          {/* Welcome Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Welcome back, {userName}
+            </h1>
+            <p className="text-muted-foreground">
+              Enterprise Logistics Command Center
+            </p>
           </div>
 
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-border bg-card">
-              <div className="container py-4 flex flex-col gap-3">
-                <Link href="/admin/dashboard" className="py-2 text-sm font-medium text-primary" onClick={() => setMobileMenuOpen(false)}>
-                  Dashboard
-                </Link>
-                <Link href="/admin/shipments" className="py-2 text-sm font-medium hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
-                  Shipments
-                </Link>
-                <Link href="/admin/quotes" className="py-2 text-sm font-medium hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
-                  Quotes
-                </Link>
-                <Button variant="ghost" className="justify-start" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <Button
+              onClick={() => router.push("/admin/shipments?action=new")}
+              className="h-auto py-4 bg-primary hover:bg-primary/90"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              <div className="text-left">
+                <div className="font-semibold">New Shipment</div>
+                <div className="text-xs opacity-80">Create tracking</div>
+              </div>
+            </Button>
+
+            <Button
+              onClick={() => router.push("/admin/shipments")}
+              variant="outline"
+              className="h-auto py-4"
+            >
+              <Package className="h-5 w-5 mr-2" />
+              <div className="text-left">
+                <div className="font-semibold">All Shipments</div>
+                <div className="text-xs opacity-70">{stats.total} total</div>
+              </div>
+            </Button>
+
+            <Button
+              onClick={() => router.push("/admin/quotes")}
+              variant="outline"
+              className="h-auto py-4"
+            >
+              <FileText className="h-5 w-5 mr-2" />
+              <div className="text-left">
+                <div className="font-semibold">Quote Requests</div>
+                <div className="text-xs opacity-70">Manage quotes</div>
+              </div>
+            </Button>
+
+            <Button
+              onClick={() => router.push("/track")}
+              variant="outline"
+              className="h-auto py-4"
+            >
+              <Activity className="h-5 w-5 mr-2" />
+              <div className="text-left">
+                <div className="font-semibold">Track Shipment</div>
+                <div className="text-xs opacity-70">Live tracking</div>
+              </div>
+            </Button>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="border-primary/20 bg-card">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardDescription>Total Shipments</CardDescription>
+                  <Package className="h-5 w-5 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-foreground">{stats.total}</div>
+                <p className="text-xs text-muted-foreground mt-1">All time</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-purple-500/20 bg-card">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardDescription>Active Shipments</CardDescription>
+                  <TruckIcon className="h-5 w-5 text-purple-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-foreground">{stats.active}</div>
+                <p className="text-xs text-muted-foreground mt-1">In progress</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-emerald-500/20 bg-card">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardDescription>Delivered</CardDescription>
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-foreground">{stats.delivered}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.total > 0 ? Math.round((stats.delivered / stats.total) * 100) : 0}% success rate
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-amber-500/20 bg-card">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardDescription>Revenue</CardDescription>
+                  <DollarSign className="h-5 w-5 text-amber-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-foreground">
+                  ${stats.revenue.toLocaleString()}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Total earnings</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Status Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-orange-500" />
+                  <CardDescription>Delayed</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.delayed}</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <PauseCircle className="h-4 w-4 text-gray-500" />
+                  <CardDescription>On Hold</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.onHold}</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <XCircle className="h-4 w-4 text-red-500" />
+                  <CardDescription>Cancelled</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.cancelled}</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-emerald-500" />
+                  <CardDescription>Delivery Rate</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {stats.total > 0 ? Math.round((stats.delivered / stats.total) * 100) : 0}%
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent Shipments */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Recent Shipments</CardTitle>
+                  <CardDescription>Latest shipment activities</CardDescription>
+                </div>
+                <Button
+                  onClick={() => router.push("/admin/shipments")}
+                  variant="outline"
+                  size="sm"
+                >
+                  View All
+                  <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>
-            </div>
-          )}
-        </nav>
-
-        <main className="container py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage your logistics operations</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-            <Card className="p-6 border-border">
-              <div className="flex items-center justify-between mb-2">
-                <Users className="h-8 w-8 text-primary" />
-                <span className="text-3xl font-bold font-mono">{stats.totalCustomers}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Total Customers</p>
-            </Card>
-
-            <Card className="p-6 border-border">
-              <div className="flex items-center justify-between mb-2">
-                <Package className="h-8 w-8 text-primary" />
-                <span className="text-3xl font-bold font-mono">{stats.totalShipments}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Total Shipments</p>
-            </Card>
-
-            <Card className="p-6 border-border">
-              <div className="flex items-center justify-between mb-2">
-                <Clock className="h-8 w-8 text-accent" />
-                <span className="text-3xl font-bold font-mono">{stats.activeShipments}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Active Shipments</p>
-            </Card>
-
-            <Card className="p-6 border-border">
-              <div className="flex items-center justify-between mb-2">
-                <CheckCircle2 className="h-8 w-8 text-green-500" />
-                <span className="text-3xl font-bold font-mono">{stats.deliveredShipments}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Delivered</p>
-            </Card>
-
-            <Card className="p-6 border-border">
-              <div className="flex items-center justify-between mb-2">
-                <FileText className="h-8 w-8 text-yellow-500" />
-                <span className="text-3xl font-bold font-mono">{stats.pendingQuotes}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Pending Quotes</p>
-            </Card>
-          </div>
-
-          <Card className="p-6 border-border mb-8">
-            <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-bold">Shipment Volume Trend (Last 30 Days)</h2>
-            </div>
-
-            <div className="grid md:grid-cols-4 gap-4 mb-6">
-              <div className="p-4 bg-background rounded border border-border">
-                <p className="text-2xl font-bold font-mono text-primary">{volumeStats.totalThisMonth}</p>
-                <p className="text-xs text-muted-foreground">Total This Month</p>
-              </div>
-              <div className="p-4 bg-background rounded border border-border">
-                <p className="text-2xl font-bold font-mono text-accent">{volumeStats.avgDaily.toFixed(1)}</p>
-                <p className="text-xs text-muted-foreground">Average Daily</p>
-              </div>
-              <div className="p-4 bg-background rounded border border-border">
-                <p className="text-2xl font-bold font-mono text-green-500">{volumeStats.highestDay}</p>
-                <p className="text-xs text-muted-foreground">Highest Volume Day</p>
-              </div>
-              <div className="p-4 bg-background rounded border border-border">
-                <p className="text-2xl font-bold font-mono text-muted-foreground">{volumeStats.lowestDay}</p>
-                <p className="text-xs text-muted-foreground">Lowest Volume Day</p>
-              </div>
-            </div>
-
-            {volumeData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={volumeData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                  <XAxis
-                    dataKey="date"
-                    stroke="#94A3B8"
-                    tick={{ fill: "#94A3B8", fontSize: 11 }}
-                    tickFormatter={(value) => {
-                      const date = new Date(value);
-                      return `${date.getMonth() + 1}/${date.getDate()}`;
-                    }}
-                  />
-                  <YAxis stroke="#94A3B8" tick={{ fill: "#94A3B8", fontSize: 12 }} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#1E293B",
-                      border: "1px solid #334155",
-                      borderRadius: "4px",
-                      color: "#E2E8F0",
-                    }}
-                    labelFormatter={(value) => {
-                      const date = new Date(value);
-                      return date.toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      });
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="count"
-                    stroke="#F59E0B"
-                    strokeWidth={2}
-                    dot={{ fill: "#F59E0B", r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                <p>No shipment data available for the last 30 days</p>
-              </div>
-            )}
-          </Card>
-
-          <div className="grid lg:grid-cols-2 gap-6">
-            <Card className="border-border">
-              <div className="p-6 border-b border-border">
-                <h2 className="text-xl font-bold">Quick Actions</h2>
-              </div>
-              <div className="p-6 space-y-3">
-                <Link href="/admin/shipments?action=create">
-                  <Button className="w-full justify-start font-mono">
-                    <Package className="h-4 w-4 mr-2" />
-                    Create New Shipment
+            </CardHeader>
+            <CardContent>
+              {recentShipments.length === 0 ? (
+                <div className="text-center py-12">
+                  <Package className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                  <p className="text-muted-foreground">No shipments yet</p>
+                  <Button
+                    onClick={() => router.push("/admin/shipments?action=new")}
+                    className="mt-4"
+                  >
+                    Create First Shipment
                   </Button>
-                </Link>
-                <Link href="/admin/quotes">
-                  <Button variant="outline" className="w-full justify-start">
-                    <FileText className="h-4 w-4 mr-2" />
-                    View Quote Requests
-                  </Button>
-                </Link>
-                <Link href="/admin/shipments">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Truck className="h-4 w-4 mr-2" />
-                    Manage Shipments
-                  </Button>
-                </Link>
-              </div>
-            </Card>
-
-            <Card className="border-border">
-              <div className="p-6 border-b border-border">
-                <h2 className="text-xl font-bold">Recent Activity</h2>
-              </div>
-              <div className="divide-y divide-border">
-                {loading ? (
-                  <div className="p-6 text-center text-muted-foreground">
-                    Loading activity...
-                  </div>
-                ) : recentActivity.length === 0 ? (
-                  <div className="p-6 text-center text-muted-foreground">
-                    No recent activity
-                  </div>
-                ) : (
-                  recentActivity.map((activity) => (
-                    <div key={activity.id} className="p-6">
-                      <div className="flex items-start gap-3">
-                        <LayoutDashboard className="h-4 w-4 text-primary mt-1" />
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">{activity.title}</p>
-                          <p className="text-xs text-muted-foreground">{activity.description}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {recentShipments.map((shipment) => (
+                    <div
+                      key={shipment.id}
+                      className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => router.push(`/admin/shipments/${shipment.id}`)}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                          {getShipmentIcon(shipment.shipment_type)}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-semibold text-sm">
+                              {shipment.tracking_number}
+                            </span>
+                            <Badge
+                              variant="outline"
+                              className={getStatusColor(shipment.status)}
+                            >
+                              {shipment.status.replace("_", " ")}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {shipment.sender_name} → {shipment.receiver_name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {shipment.destination_city}, {shipment.destination_country}
+                          </p>
                         </div>
                       </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
                     </div>
-                  ))
-                )}
-              </div>
-            </Card>
-          </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </main>
+
+        <Footer />
       </div>
-    </>
+    </ProtectedRoute>
   );
 }
