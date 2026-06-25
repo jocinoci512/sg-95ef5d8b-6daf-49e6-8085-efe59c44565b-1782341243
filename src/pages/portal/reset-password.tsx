@@ -2,13 +2,16 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import type { GetServerSideProps } from "next";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Lock, ArrowLeft } from "lucide-react";
+import { Lock, ArrowLeft, KeyRound, Loader2 } from "lucide-react";
 
 export default function ResetPassword() {
   const router = useRouter();

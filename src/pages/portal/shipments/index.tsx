@@ -6,10 +6,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { SEO } from "@/components/SEO";
 import type { GetServerSideProps } from "next";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/database.types";
-import { Package, Search, Eye, Calendar, MapPin } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { Package, Search, Eye, Calendar, MapPin, Truck, LogOut, X, Menu } from "lucide-react";
 
 interface Shipment {
   id: string;
@@ -117,7 +119,6 @@ function ShipmentsContent() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast({ title: "Logged out successfully" });
-    router.push("/");
   };
 
   const getStatusColor = (status: string) => {

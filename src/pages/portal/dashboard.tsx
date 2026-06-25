@@ -5,9 +5,11 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SEO } from "@/components/SEO";
 import type { GetServerSideProps } from "next";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/database.types";
+import { toast } from "@/hooks/use-toast";
 import {
   Package,
   TrendingUp,
@@ -15,6 +17,10 @@ import {
   CheckCircle2,
   AlertCircle,
   Eye,
+  Truck,
+  LogOut,
+  X,
+  Menu,
 } from "lucide-react";
 
 interface Shipment {
