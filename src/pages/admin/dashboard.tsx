@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { ReactElement } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { ShipmentService } from "@/services/shipmentService";
@@ -122,8 +123,8 @@ export default function AdminDashboard() {
     return colors[status] || colors.pending;
   };
 
-  const getShipmentIcon = (type: string) => {
-    const icons: Record<string, JSX.Element> = {
+  const getShipmentIcon = (type: string): ReactElement => {
+    const icons: Record<string, ReactElement> = {
       air_freight: <Plane className="h-4 w-4" />,
       ocean_freight: <Ship className="h-4 w-4" />,
       rail_freight: <Train className="h-4 w-4" />,
@@ -134,7 +135,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <ProtectedRoute requireAdmin>
+      <ProtectedRoute>
         <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -146,7 +147,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <ProtectedRoute requireAdmin>
+    <ProtectedRoute>
       <div className="min-h-screen bg-background">
         <Header />
         
