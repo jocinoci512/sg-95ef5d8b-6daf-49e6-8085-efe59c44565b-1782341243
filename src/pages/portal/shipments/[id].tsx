@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -9,7 +9,7 @@ import { SEO } from "@/components/SEO";
 import type { GetServerSideProps } from "next";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/database.types";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import {
   Package,
   MapPin,
@@ -93,6 +93,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 function ShipmentDetailContent() {
+  const router = useRouter();
   const { id } = router.query;
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -100,6 +101,12 @@ function ShipmentDetailContent() {
   const [shipment, setShipment] = useState<Shipment | null>(null);
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState<ShipmentDocument[]>([]);
+
+  useEffect(() => {
+    if (id && typeof id === "string") {
+      fetchShipment(id);
+    }
+  }, [id]);
 
   const fetchShipment = async (shipmentId: string) => {
     setLoading(true);

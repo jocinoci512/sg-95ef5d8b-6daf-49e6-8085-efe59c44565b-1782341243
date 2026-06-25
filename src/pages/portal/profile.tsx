@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -28,6 +28,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
 function ProfileContent() {
   const router = useRouter();
+  const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -36,6 +37,10 @@ function ProfileContent() {
     address: "",
     email: "",
   });
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   const fetchProfile = async () => {
     try {
@@ -104,12 +109,13 @@ function ProfileContent() {
     if (!user) return;
 
     const { error: updateError } = await supabase
-      .from("customers")
+      .from("profiles")
       .update({
-        full_name: formData.full_name,
+        full_name: formData.fullName,
         phone: formData.phone,
+        address: formData.address,
       })
-      .eq("user_id", user.id);
+      .eq("id", user.id);
 
     if (updateError) {
       toast({
@@ -119,6 +125,11 @@ function ProfileContent() {
       });
       return;
     }
+
+    toast({
+      title: "Profile updated",
+      description: "Your information has been saved successfully.",
+    });
   };
 
   const handleLogout = async () => {

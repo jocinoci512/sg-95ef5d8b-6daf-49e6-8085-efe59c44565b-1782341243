@@ -26,9 +26,9 @@ export default function Signup() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Passwords don't match",
@@ -38,41 +38,38 @@ export default function Signup() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      toast({
-        title: "Password too short",
-        description: "Password must be at least 6 characters long.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
+
     try {
-      await authService.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
-        fullName: formData.fullName,
-        phone: formData.phone,
+        options: {
+          data: {
+            full_name: formData.fullName,
+            phone: formData.phone,
+          },
+        },
       });
 
+      if (error) {
+        toast({
+          title: "Signup Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
-        title: "Account created successfully",
+        title: "Account created!",
         description: "Please check your email to verify your account.",
       });
 
       router.push("/portal/login");
     } catch (error: any) {
-      if (signUpError) {
-        toast({
-          title: "Signup Failed",
-          description: signUpError.message,
-          variant: "destructive",
-        });
-        return;
-      }
       toast({
-        title: "Signup failed",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -106,7 +103,7 @@ export default function Signup() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSignup} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name *</Label>
                   <Input

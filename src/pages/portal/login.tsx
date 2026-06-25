@@ -28,24 +28,11 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { user } = await authService.signIn({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
 
-      const profile = await authService.getProfile(user.id);
-      
-      toast({
-        title: "Login successful",
-        description: "Welcome back!",
-      });
-
-      if (profile.role === "admin" || profile.role === "super_admin") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/portal/dashboard");
-      }
-    } catch (error: any) {
       if (error) {
         toast({
           title: "Login Failed",
@@ -54,6 +41,26 @@ export default function Login() {
         });
         return;
       }
+
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
+
+        if (profile?.role === "admin") {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/portal/dashboard");
+        }
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

@@ -172,7 +172,7 @@ function AdminQuotesContent() {
 
   const handleApprove = async (id: string) => {
     const { error } = await supabase
-      .from("quotes")
+      .from("quote_requests")
       .update({ status: "approved" })
       .eq("id", id);
 
@@ -184,11 +184,18 @@ function AdminQuotesContent() {
       });
       return;
     }
+
+    toast({
+      title: "Success",
+      description: "Quote approved successfully",
+    });
+
+    fetchQuotes();
   };
 
   const handleReject = async (id: string) => {
     const { error } = await supabase
-      .from("quotes")
+      .from("quote_requests")
       .update({ status: "rejected" })
       .eq("id", id);
 
@@ -200,10 +207,17 @@ function AdminQuotesContent() {
       });
       return;
     }
+
+    toast({
+      title: "Success",
+      description: "Quote rejected successfully",
+    });
+
+    fetchQuotes();
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("quotes").delete().eq("id", id);
+    const { error } = await supabase.from("quote_requests").delete().eq("id", id);
 
     if (error) {
       toast({

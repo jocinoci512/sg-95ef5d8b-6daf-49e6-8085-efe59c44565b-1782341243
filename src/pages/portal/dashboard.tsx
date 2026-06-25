@@ -64,7 +64,22 @@ function DashboardContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardData();
+    const initDashboard = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .single();
+
+      if (profile) setUserName(profile.full_name);
+
+      await fetchDashboardData(user.id);
+    };
+
+    initDashboard();
 
     const channel = supabase
       .channel("customer-dashboard")
@@ -76,7 +91,11 @@ function DashboardContent() {
           table: "shipments",
         },
         () => {
-          fetchDashboardData();
+          const refreshData = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) await fetchDashboardData(user.id);
+          };
+          refreshData();
         }
       )
       .subscribe();
@@ -87,12 +106,28 @@ function DashboardContent() {
   }, []);
 
   const fetchDashboardData = async (userId: string) => {
-    const { data: shipmentsData } = await supabase
-      .from("shipments")
-      .select("*")
-      .eq("customer_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(5);
+    try {
+      const { data: shipmentsData } = await supabase
+        .from("shipments")
+        .select("*")
+        .eq("customer_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (shipmentsData) {
+        setRecentShipments(shipmentsData);
+
+        const total = shipmentsData.length;
+        const active = shipmentsData.filter((s) => s.status !== "delivered").length;
+        const delivered = shipmentsData.filter((s) => s.status === "delivered").length;
+
+        setStats({ total, active, delivered });
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = async () => {

@@ -240,16 +240,38 @@ function ShipmentsContent() {
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="flex items-start gap-4">
-                      <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                        <Image
-                          src={
-                            shipment.vehicle_image || "/truck-highway.jpg"
-                          }
-                          alt={shipment.vehicle_type}
-                          fill
-                          className="object-cover"
-                        />
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center">
+                        <Truck className="h-8 w-8 text-primary" />
                       </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <p className="font-mono font-bold">{shipment.tracking_number}</p>
+                          <span className={`text-sm font-medium capitalize ${getStatusColor(shipment.status)}`}>
+                            {shipment.status.replace(/_/g, " ")}
+                          </span>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                          <p>From: {shipment.pickup_address}</p>
+                          <p>To: {shipment.delivery_address}</p>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-2 capitalize">
+                          Vehicle: {shipment.vehicle_type}
+                        </p>
+                        {shipment.estimated_delivery_date && (
+                          <div className="mt-2">
+                            <p className="text-xs text-muted-foreground">Est. Delivery</p>
+                            <p className="text-sm font-medium">
+                              {new Date(shipment.estimated_delivery_date).toLocaleDateString()}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      <Link href={`/portal/shipments/${shipment.id}`}>
+                        <Button size="sm" variant="outline" className="font-mono">
+                          <Eye className="h-4 w-4 mr-2" />
+                          View
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </Card>
