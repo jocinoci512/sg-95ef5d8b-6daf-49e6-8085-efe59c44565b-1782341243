@@ -75,12 +75,8 @@ export function LiveShipmentMap({
         libraries: ["places", "geometry"],
       });
 
-      // Load the library - makes google.maps globally available
-      await loader.loadCallback((e: Event) => {
-        if (e.type === "error") {
-          throw new Error("Failed to load Google Maps");
-        }
-      });
+      // Load returns a Promise - wait for it to complete
+      await loader.load();
 
       // Calculate route
       const route = await MapService.calculateRoute(pickupAddress, deliveryAddress);
@@ -191,7 +187,7 @@ export function LiveShipmentMap({
       setLoading(false);
     } catch (err: any) {
       console.error("Map initialization error:", err);
-      setError(err.message || "Failed to load map");
+      setError(err.message || "Failed to load Google Maps");
       setLoading(false);
     }
   };
