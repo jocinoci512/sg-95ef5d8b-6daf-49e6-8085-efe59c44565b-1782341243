@@ -509,6 +509,7 @@ export type Database = {
           actual_delivery_date: string | null
           actual_pickup_date: string | null
           archived_at: string | null
+          carrier: string | null
           carrier_name: string | null
           carrier_phone: string | null
           created_at: string | null
@@ -522,7 +523,11 @@ export type Database = {
           delivery_lng: number | null
           delivery_state: string
           delivery_zip: string
+          destination_city: string | null
+          destination_country: string | null
           distance_km: number | null
+          driver_name: string | null
+          driver_phone: string | null
           estimated_delivery_date: string | null
           estimated_pickup_date: string | null
           hold_reason: string | null
@@ -530,7 +535,10 @@ export type Database = {
           is_archived: boolean | null
           is_on_hold: boolean | null
           notes: string | null
+          origin_city: string | null
+          origin_country: string | null
           package_description: string | null
+          package_dimensions: string | null
           package_weight: number | null
           pickup_address: string
           pickup_city: string
@@ -540,8 +548,17 @@ export type Database = {
           pickup_zip: string
           price: number | null
           progress_percentage: number | null
+          receiver_address: string | null
+          receiver_email: string | null
+          receiver_name: string | null
+          receiver_phone: string | null
           route_distance_km: number | null
+          sender_address: string | null
+          sender_email: string | null
+          sender_name: string | null
+          sender_phone: string | null
           shipment_type: string | null
+          shipping_cost: number | null
           shipping_type: string
           status: string
           tracking_number: string
@@ -555,6 +572,7 @@ export type Database = {
           actual_delivery_date?: string | null
           actual_pickup_date?: string | null
           archived_at?: string | null
+          carrier?: string | null
           carrier_name?: string | null
           carrier_phone?: string | null
           created_at?: string | null
@@ -568,7 +586,11 @@ export type Database = {
           delivery_lng?: number | null
           delivery_state: string
           delivery_zip: string
+          destination_city?: string | null
+          destination_country?: string | null
           distance_km?: number | null
+          driver_name?: string | null
+          driver_phone?: string | null
           estimated_delivery_date?: string | null
           estimated_pickup_date?: string | null
           hold_reason?: string | null
@@ -576,7 +598,10 @@ export type Database = {
           is_archived?: boolean | null
           is_on_hold?: boolean | null
           notes?: string | null
+          origin_city?: string | null
+          origin_country?: string | null
           package_description?: string | null
+          package_dimensions?: string | null
           package_weight?: number | null
           pickup_address: string
           pickup_city: string
@@ -586,8 +611,17 @@ export type Database = {
           pickup_zip: string
           price?: number | null
           progress_percentage?: number | null
+          receiver_address?: string | null
+          receiver_email?: string | null
+          receiver_name?: string | null
+          receiver_phone?: string | null
           route_distance_km?: number | null
+          sender_address?: string | null
+          sender_email?: string | null
+          sender_name?: string | null
+          sender_phone?: string | null
           shipment_type?: string | null
+          shipping_cost?: number | null
           shipping_type: string
           status?: string
           tracking_number: string
@@ -601,6 +635,7 @@ export type Database = {
           actual_delivery_date?: string | null
           actual_pickup_date?: string | null
           archived_at?: string | null
+          carrier?: string | null
           carrier_name?: string | null
           carrier_phone?: string | null
           created_at?: string | null
@@ -614,7 +649,11 @@ export type Database = {
           delivery_lng?: number | null
           delivery_state?: string
           delivery_zip?: string
+          destination_city?: string | null
+          destination_country?: string | null
           distance_km?: number | null
+          driver_name?: string | null
+          driver_phone?: string | null
           estimated_delivery_date?: string | null
           estimated_pickup_date?: string | null
           hold_reason?: string | null
@@ -622,7 +661,10 @@ export type Database = {
           is_archived?: boolean | null
           is_on_hold?: boolean | null
           notes?: string | null
+          origin_city?: string | null
+          origin_country?: string | null
           package_description?: string | null
+          package_dimensions?: string | null
           package_weight?: number | null
           pickup_address?: string
           pickup_city?: string
@@ -632,8 +674,17 @@ export type Database = {
           pickup_zip?: string
           price?: number | null
           progress_percentage?: number | null
+          receiver_address?: string | null
+          receiver_email?: string | null
+          receiver_name?: string | null
+          receiver_phone?: string | null
           route_distance_km?: number | null
+          sender_address?: string | null
+          sender_email?: string | null
+          sender_name?: string | null
+          sender_phone?: string | null
           shipment_type?: string | null
+          shipping_cost?: number | null
           shipping_type?: string
           status?: string
           tracking_number?: string
