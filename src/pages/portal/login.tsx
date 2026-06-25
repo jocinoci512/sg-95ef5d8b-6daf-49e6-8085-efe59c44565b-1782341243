@@ -46,6 +46,7 @@ export default function Login() {
         // Log activity
         await supabase.from("activity_logs").insert({
           user_id: data.user.id,
+          entity_type: "user",
           action: "login",
           details: { email: data.user.email },
         });
