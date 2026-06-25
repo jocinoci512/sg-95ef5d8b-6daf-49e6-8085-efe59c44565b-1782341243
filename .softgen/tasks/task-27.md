@@ -1,11 +1,11 @@
 ---
 title: Shipment Management System
-status: todo
+status: done
 priority: high
 type: feature
 tags: [admin, shipments, crud]
 created_by: agent
-created_at: 2026-06-25T18:40:00Z
+created_at: 2026-06-25T18:51:20Z
 position: 27
 ---
 
