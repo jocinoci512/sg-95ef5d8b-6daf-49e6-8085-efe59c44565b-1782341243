@@ -15,6 +15,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author_id: string | null
@@ -118,6 +162,54 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          shipment_id: string | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          shipment_id?: string | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          shipment_id?: string | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -264,6 +356,7 @@ export type Database = {
       }
       shipment_documents: {
         Row: {
+          category: string | null
           created_at: string | null
           document_name: string
           document_type: string
@@ -275,6 +368,7 @@ export type Database = {
           uploaded_by: string | null
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           document_name: string
           document_type: string
@@ -286,6 +380,7 @@ export type Database = {
           uploaded_by?: string | null
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           document_name?: string
           document_type?: string
@@ -313,25 +408,140 @@ export type Database = {
           },
         ]
       }
+      shipment_notes: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_internal: boolean | null
+          note: string
+          shipment_id: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          note: string
+          shipment_id: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          note?: string
+          shipment_id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipment_notes_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipment_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipment_timeline: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          event_description: string | null
+          event_timestamp: string | null
+          event_title: string
+          event_type: string
+          id: string
+          location: string | null
+          shipment_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          event_description?: string | null
+          event_timestamp?: string | null
+          event_title: string
+          event_type: string
+          id?: string
+          location?: string | null
+          shipment_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          event_description?: string | null
+          event_timestamp?: string | null
+          event_title?: string
+          event_type?: string
+          id?: string
+          location?: string | null
+          shipment_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipment_timeline_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipment_timeline_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shipments: {
         Row: {
           actual_delivery_date: string | null
           actual_pickup_date: string | null
+          archived_at: string | null
+          carrier_name: string | null
+          carrier_phone: string | null
           created_at: string | null
+          current_lat: number | null
+          current_lng: number | null
+          current_location: string | null
           customer_id: string
           delivery_address: string
           delivery_city: string
+          delivery_lat: number | null
+          delivery_lng: number | null
           delivery_state: string
           delivery_zip: string
+          distance_km: number | null
           estimated_delivery_date: string | null
           estimated_pickup_date: string | null
+          hold_reason: string | null
           id: string
+          is_archived: boolean | null
+          is_on_hold: boolean | null
           notes: string | null
+          package_description: string | null
+          package_weight: number | null
           pickup_address: string
           pickup_city: string
+          pickup_lat: number | null
+          pickup_lng: number | null
           pickup_state: string
           pickup_zip: string
           price: number | null
+          progress_percentage: number | null
+          route_distance_km: number | null
+          shipment_type: string | null
           shipping_type: string
           status: string
           tracking_number: string
@@ -344,21 +554,40 @@ export type Database = {
         Insert: {
           actual_delivery_date?: string | null
           actual_pickup_date?: string | null
+          archived_at?: string | null
+          carrier_name?: string | null
+          carrier_phone?: string | null
           created_at?: string | null
+          current_lat?: number | null
+          current_lng?: number | null
+          current_location?: string | null
           customer_id: string
           delivery_address: string
           delivery_city: string
+          delivery_lat?: number | null
+          delivery_lng?: number | null
           delivery_state: string
           delivery_zip: string
+          distance_km?: number | null
           estimated_delivery_date?: string | null
           estimated_pickup_date?: string | null
+          hold_reason?: string | null
           id?: string
+          is_archived?: boolean | null
+          is_on_hold?: boolean | null
           notes?: string | null
+          package_description?: string | null
+          package_weight?: number | null
           pickup_address: string
           pickup_city: string
+          pickup_lat?: number | null
+          pickup_lng?: number | null
           pickup_state: string
           pickup_zip: string
           price?: number | null
+          progress_percentage?: number | null
+          route_distance_km?: number | null
+          shipment_type?: string | null
           shipping_type: string
           status?: string
           tracking_number: string
@@ -371,21 +600,40 @@ export type Database = {
         Update: {
           actual_delivery_date?: string | null
           actual_pickup_date?: string | null
+          archived_at?: string | null
+          carrier_name?: string | null
+          carrier_phone?: string | null
           created_at?: string | null
+          current_lat?: number | null
+          current_lng?: number | null
+          current_location?: string | null
           customer_id?: string
           delivery_address?: string
           delivery_city?: string
+          delivery_lat?: number | null
+          delivery_lng?: number | null
           delivery_state?: string
           delivery_zip?: string
+          distance_km?: number | null
           estimated_delivery_date?: string | null
           estimated_pickup_date?: string | null
+          hold_reason?: string | null
           id?: string
+          is_archived?: boolean | null
+          is_on_hold?: boolean | null
           notes?: string | null
+          package_description?: string | null
+          package_weight?: number | null
           pickup_address?: string
           pickup_city?: string
+          pickup_lat?: number | null
+          pickup_lng?: number | null
           pickup_state?: string
           pickup_zip?: string
           price?: number | null
+          progress_percentage?: number | null
+          route_distance_km?: number | null
+          shipment_type?: string | null
           shipping_type?: string
           status?: string
           tracking_number?: string

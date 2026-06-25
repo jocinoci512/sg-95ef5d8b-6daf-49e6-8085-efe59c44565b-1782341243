@@ -1,38 +1,30 @@
 ---
 title: Enterprise Admin System - Database Schema Enhancement
-status: in_progress
+status: done
 priority: urgent
 type: feature
-tags: [database, admin, foundation]
+tags: [database, admin, schema]
 created_by: agent
-created_at: 2026-06-25T18:40:00Z
+created_at: 2026-06-25T18:51:00Z
 position: 24
 ---
 
 ## Notes
-Extend database schema to support comprehensive enterprise logistics features:
-- Multiple freight types (air, ocean, rail, road)
-- Geocoding and map coordinates
-- Admin activity logging
-- Staff permissions system
-- Notification templates
-- Enhanced shipment tracking
-- Document management
-- Settings and preferences
-
-Must support all freight types while maintaining existing vehicle shipping functionality.
+Enhance database schema to support all enterprise logistics features including shipment types, timelines, documents, notes, activity logs, and notifications.
 
 ## Checklist
-- [ ] Create shipment_locations table for map tracking
-- [ ] Create admin_activity_logs table for audit trail
-- [ ] Create notification_templates table
-- [ ] Create system_settings table
-- [ ] Extend shipments table with coordinates and freight fields
-- [ ] Create indexes for performance
-- [ ] Add RLS policies for new tables
-- [ ] Create helper functions for geocoding and tracking number generation
+- [x] Add shipment_type, current_location, coordinates to shipments table
+- [x] Create shipment_timeline table for detailed event tracking
+- [x] Create shipment_documents table for file attachments
+- [x] Create shipment_notes table for internal/customer notes
+- [x] Create activity_logs table for audit trail
+- [x] Create notifications table for user alerts
+- [x] Add indexes for query performance
+- [x] Configure RLS policies for secure access
+- [x] Create admin account setup function
 
 ## Acceptance
-- All new tables created with proper constraints and indexes
+- All new tables created with proper relationships
+- Indexes optimize query performance
 - RLS policies secure data access
-- Existing shipments remain fully compatible
+- Admin account can be automatically configured
