@@ -72,12 +72,10 @@ export function LiveShipmentMap({
       const loader = new Loader({
         apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
         version: "weekly",
+        libraries: ["places", "geometry"],
       });
 
-      // Import required libraries
-      await loader.importLibrary("maps");
-      await loader.importLibrary("marker");
-      await loader.importLibrary("geometry");
+      await loader.load();
 
       // Calculate route
       const route = await MapService.calculateRoute(pickupAddress, deliveryAddress);
