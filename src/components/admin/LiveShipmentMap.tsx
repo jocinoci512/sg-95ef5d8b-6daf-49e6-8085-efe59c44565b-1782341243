@@ -68,15 +68,23 @@ export function LiveShipmentMap({
       setLoading(true);
       setError(null);
 
-      // Load Google Maps JavaScript API
+      // Load Google Maps JavaScript API using loadCallback
       const loader = new Loader({
         apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
         version: "weekly",
         libraries: ["places", "geometry"],
       });
 
-      // Load returns a Promise - wait for it to complete
-      await loader.load();
+      // Use loadCallback which returns a promise
+      await new Promise<void>((resolve, reject) => {
+        loader.loadCallback((err: Error | null) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
 
       // Calculate route
       const route = await MapService.calculateRoute(pickupAddress, deliveryAddress);
