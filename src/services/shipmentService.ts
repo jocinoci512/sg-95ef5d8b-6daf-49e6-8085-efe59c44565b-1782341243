@@ -269,9 +269,9 @@ export class ShipmentService {
       .from("shipment_notes")
       .insert({
         shipment_id: shipmentId,
-        note_text: note,
+        note: note,
         is_internal: isInternal,
-        author_id: user.id,
+        user_id: user.id,
       })
       .select()
       .single();
@@ -326,6 +326,7 @@ export class ShipmentService {
       package_weight: original.package_weight,
       package_dimensions: original.package_dimensions,
       shipment_type: original.shipment_type,
+      shipping_type: original.shipping_type,
       status: "pending",
       origin_city: original.origin_city,
       origin_country: original.origin_country,
