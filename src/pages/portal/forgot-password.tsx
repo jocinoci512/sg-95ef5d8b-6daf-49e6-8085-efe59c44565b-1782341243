@@ -1,20 +1,16 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import type { GetServerSideProps } from "next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, KeyRound, ArrowLeft } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { Mail, ArrowLeft } from "lucide-react";
 
 export default function ForgotPassword() {
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -28,7 +24,14 @@ export default function ForgotPassword() {
         redirectTo: `${window.location.origin}/portal/reset-password`,
       });
 
-      if (error) throw error;
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
 
       setSubmitted(true);
       toast({
@@ -48,13 +51,7 @@ export default function ForgotPassword() {
 
   return (
     <>
-      <SEO
-        title="Forgot Password"
-        description="Reset your Go Cargo Logistics account password."
-      />
       <div className="min-h-screen flex flex-col">
-        <Header />
-        
         <main className="flex-1 py-20">
           <div className="container max-w-md">
             <Link href="/portal/login" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8">
@@ -65,7 +62,7 @@ export default function ForgotPassword() {
             <Card className="p-8 border-border">
               <div className="mb-8">
                 <div className="w-12 h-12 rounded-sm bg-primary/10 border-2 border-primary flex items-center justify-center mb-4">
-                  <KeyRound className="h-6 w-6 text-primary" />
+                  <Mail className="h-6 w-6 text-primary" />
                 </div>
                 <h1 className="text-3xl font-bold mb-2">Forgot Password</h1>
                 <p className="text-muted-foreground">
@@ -119,8 +116,6 @@ export default function ForgotPassword() {
             </Card>
           </div>
         </main>
-
-        <Footer />
       </div>
     </>
   );

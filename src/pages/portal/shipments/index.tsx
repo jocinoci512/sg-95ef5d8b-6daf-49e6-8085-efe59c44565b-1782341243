@@ -1,26 +1,15 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import Link from "next/link";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import Image from "next/image";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import type { GetServerSideProps } from "next";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { SEO } from "@/components/SEO";
+import type { GetServerSideProps } from "next";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Truck,
-  Package,
-  LogOut,
-  Menu,
-  X,
-  Search,
-  MapPin,
-  Clock,
-} from "lucide-react";
+import type { Database } from "@/integrations/supabase/database.types";
+import { Package, Search, Eye, Calendar, MapPin } from "lucide-react";
 
 interface Shipment {
   id: string;
@@ -48,7 +37,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
 };
 
 function ShipmentsContent() {
-  const router = useRouter();
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userName, setUserName] = useState("");
@@ -245,53 +233,25 @@ function ShipmentsContent() {
           ) : (
             <div className="grid gap-4">
               {filteredShipments.map((shipment) => (
-                <Link key={shipment.id} href={`/portal/shipments/${shipment.id}`}>
-                  <Card className="p-6 border-border hover:border-primary/50 transition-colors">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div>
-                        <div className="flex items-center gap-3 mb-2">
-                          <p className="font-mono font-bold text-lg">{shipment.tracking_number}</p>
-                          <span className={`text-sm font-medium capitalize ${getStatusColor(shipment.status)}`}>
-                            {shipment.status.replace(/_/g, " ")}
-                          </span>
-                        </div>
-                        <p className="text-sm text-muted-foreground capitalize">
-                          {shipment.vehicle_type}
-                        </p>
-                      </div>
-                      {shipment.estimated_delivery_date && (
-                        <div className="text-right shrink-0">
-                          <p className="text-xs text-muted-foreground mb-1">Est. Delivery</p>
-                          <p className="text-sm font-medium font-data">
-                            {new Date(shipment.estimated_delivery_date).toLocaleDateString()}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">Pickup</p>
-                          <p className="text-sm">{shipment.pickup_address}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 text-accent mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">Delivery</p>
-                          <p className="text-sm">{shipment.delivery_address}</p>
-                        </div>
+                <Card
+                  key={shipment.id}
+                  className="p-6 hover:shadow-lg transition-shadow"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                        <Image
+                          src={
+                            shipment.vehicle_image || "/truck-highway.jpg"
+                          }
+                          alt={shipment.vehicle_type}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                     </div>
-
-                    <div className="mt-4 pt-4 border-t border-border flex items-center gap-2 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      Created {new Date(shipment.created_at).toLocaleDateString()}
-                    </div>
-                  </Card>
-                </Link>
+                  </div>
+                </Card>
               ))}
             </div>
           )}

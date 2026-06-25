@@ -1,25 +1,20 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import type { GetServerSideProps } from "next";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import type { GetServerSideProps } from "next";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import type { Database } from "@/integrations/supabase/database.types";
 import {
-  Truck,
   Package,
-  CheckCircle2,
+  TrendingUp,
   Clock,
-  LogOut,
-  User,
-  FileText,
-  Menu,
-  X,
+  CheckCircle2,
+  AlertCircle,
+  Eye,
 } from "lucide-react";
 
 interface Shipment {
@@ -85,38 +80,13 @@ function DashboardContent() {
     };
   }, []);
 
-  const fetchDashboardData = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user.id)
-        .single();
-
-      if (profile) setUserName(profile.full_name);
-
-      const { data: shipments } = await supabase
-        .from("shipments")
-        .select("id, tracking_number, pickup_address, delivery_address, vehicle_type, status, estimated_delivery_date, created_at")
-        .eq("customer_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (shipments) {
-        setStats({
-          total: shipments.length,
-          active: shipments.filter(s => s.status !== "delivered").length,
-          delivered: shipments.filter(s => s.status === "delivered").length,
-        });
-        setRecentShipments(shipments.slice(0, 5));
-      }
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-    } finally {
-      setLoading(false);
-    }
+  const fetchDashboardData = async (userId: string) => {
+    const { data: shipmentsData } = await supabase
+      .from("shipments")
+      .select("*")
+      .eq("customer_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(5);
   };
 
   const handleLogout = async () => {

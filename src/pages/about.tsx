@@ -17,6 +17,7 @@ import {
   Target,
   ChevronRight,
 } from "lucide-react";
+import Image from "next/image";
 
 export default function About() {
   return (
@@ -102,11 +103,13 @@ export default function About() {
                     </p>
                   </div>
                 </div>
-                <div>
-                  <img
-                    src="/warehouse-operations.jpg"
-                    alt="Warehouse operations"
-                    className="w-full rounded-lg shadow-lg"
+                <div className="relative h-96 rounded-lg overflow-hidden">
+                  <Image
+                    src="/team-operations.jpg"
+                    alt="Go Cargo Logistics Team"
+                    fill
+                    className="object-cover"
+                    priority
                   />
                 </div>
               </div>
@@ -251,10 +254,12 @@ export default function About() {
             <div className="container mx-auto px-4">
               <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div>
-                  <img
+                  <Image
                     src="/team-collaboration.png"
                     alt="Professional logistics team"
                     className="w-full rounded-lg shadow-lg"
+                    width={0}
+                    height={0}
                   />
                 </div>
                 <div>

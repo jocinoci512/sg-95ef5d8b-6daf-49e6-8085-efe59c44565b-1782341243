@@ -1,26 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import type { GetServerSideProps } from "next";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SEO } from "@/components/SEO";
+import { Card } from "@/components/ui/card";
+import type { GetServerSideProps } from "next";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Truck,
-  LogOut,
-  Menu,
-  X,
-  User,
-  Loader2,
-  Save,
-} from "lucide-react";
+import type { Database } from "@/integrations/supabase/database.types";
+import { toast } from "@/hooks/use-toast";
+import { User, Mail, Phone, Save, Loader2, Truck, LogOut, Menu, X } from "lucide-react";
 
 export default function Profile() {
   return (
@@ -38,7 +27,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
 function ProfileContent() {
   const router = useRouter();
-  const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -47,10 +35,6 @@ function ProfileContent() {
     address: "",
     email: "",
   });
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
 
   const fetchProfile = async () => {
     try {
@@ -114,6 +98,28 @@ function ProfileContent() {
     }
   };
 
+  const handleSave = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error: updateError } = await supabase
+      .from("customers")
+      .update({
+        full_name: formData.full_name,
+        phone: formData.phone,
+      })
+      .eq("user_id", user.id);
+
+    if (updateError) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      });
+      return;
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast({ title: "Logged out successfully" });
@@ -122,7 +128,6 @@ function ProfileContent() {
 
   return (
     <>
-      <SEO title="Profile" description="Manage your account information." />
       <div className="min-h-screen bg-background">
         <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
           <div className="container flex h-16 items-center justify-between">

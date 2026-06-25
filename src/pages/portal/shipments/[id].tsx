@@ -1,27 +1,22 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useState } from "react";
 import Link from "next/link";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import type { GetServerSideProps } from "next";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import type { GetServerSideProps } from "next";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import type { Database } from "@/integrations/supabase/database.types";
 import {
-  Truck,
-  LogOut,
-  Menu,
-  X,
-  MapPin,
   Package,
-  Clock,
+  MapPin,
+  Calendar,
+  DollarSign,
+  Truck,
   ArrowLeft,
   CheckCircle2,
-  FileText,
-  Download,
+  Clock,
+  AlertCircle,
 } from "lucide-react";
 
 interface TrackingEvent {
@@ -63,14 +58,33 @@ export default function ShipmentDetail() {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { id } = context.params as { id: string };
+
+  const { data: shipment, error } = await supabase
+    .from("shipments")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !shipment) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const { data: tracking } = await supabase
+    .from("tracking_events")
+    .select("*")
+    .eq("shipment_id", id)
+    .order("event_date", { ascending: false });
+
   return {
     props: {},
   };
 };
 
 function ShipmentDetailContent() {
-  const router = useRouter();
   const { id } = router.query;
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -78,66 +92,6 @@ function ShipmentDetailContent() {
   const [shipment, setShipment] = useState<Shipment | null>(null);
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState<ShipmentDocument[]>([]);
-
-  useEffect(() => {
-    if (id && typeof id === "string") {
-      fetchShipment(id);
-
-      const shipmentsChannel = supabase
-        .channel(`shipment-${id}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "shipments",
-            filter: `id=eq.${id}`,
-          },
-          () => {
-            fetchShipment(id);
-          }
-        )
-        .subscribe();
-
-      const trackingChannel = supabase
-        .channel(`tracking-${id}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "tracking_events",
-            filter: `shipment_id=eq.${id}`,
-          },
-          () => {
-            fetchShipment(id);
-          }
-        )
-        .subscribe();
-
-      const documentsChannel = supabase
-        .channel(`documents-${id}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "shipment_documents",
-            filter: `shipment_id=eq.${id}`,
-          },
-          () => {
-            fetchShipment(id);
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(shipmentsChannel);
-        supabase.removeChannel(trackingChannel);
-        supabase.removeChannel(documentsChannel);
-      };
-    }
-  }, [id]);
 
   const fetchShipment = async (shipmentId: string) => {
     setLoading(true);
@@ -397,21 +351,19 @@ function ShipmentDetailContent() {
                 ) : (
                   shipment.tracking_events
                     .sort((a, b) => new Date(b.event_date || 0).getTime() - new Date(a.event_date || 0).getTime())
-                    .map((event, index) => (
+                    .map((event) => (
                       <div key={event.id} className="flex gap-4">
                         <div className="flex flex-col items-center">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            index === 0 ? "bg-primary" : "bg-muted"
-                          }`}>
-                            {index === 0 ? (
-                              <Truck className="h-5 w-5 text-background" />
-                            ) : (
-                              <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
-                            )}
-                          </div>
-                          {index < shipment.tracking_events.length - 1 && (
-                            <div className="w-0.5 h-full bg-border mt-2" />
-                          )}
+                          <div
+                            className={`w-3 h-3 rounded-full ${
+                              event.status === "completed"
+                                ? "bg-primary"
+                                : event.status === "in_transit"
+                                  ? "bg-amber-500"
+                                  : "bg-muted"
+                            }`}
+                          />
+                          <div className="w-0.5 h-full bg-border" />
                         </div>
                         
                         <div className="flex-1 pb-6">

@@ -28,9 +28,7 @@ interface Shipment {
   total_cost: number;
 }
 
-export default function AdminShipments() {
-  const router = useRouter();
-  const { toast } = useToast();
+export default function AdminShipmentsPage() {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [filteredShipments, setFilteredShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,11 +51,11 @@ export default function AdminShipments() {
 
   useEffect(() => {
     fetchShipments();
-  }, []);
+  }, [fetchShipments]);
 
   useEffect(() => {
     filterShipments();
-  }, [shipments, searchQuery, statusFilter]);
+  }, [searchQuery, statusFilter, shipments, filterShipments]);
 
   const fetchShipments = async () => {
     try {
@@ -157,17 +155,21 @@ export default function AdminShipments() {
   const handleSave = async () => {
     try {
       if (editingShipment) {
+        const updateData: Partial<Database["public"]["Tables"]["shipments"]["Update"]> = {
+          tracking_number: formData.tracking_number,
+          pickup_city: formData.pickup_city,
+          delivery_city: formData.delivery_city,
+          vehicle_type: formData.vehicle_type,
+          shipping_type: formData.shipping_type,
+          status: formData.status,
+          estimated_pickup_date: formData.estimated_pickup_date,
+          estimated_delivery_date: formData.estimated_delivery_date || null,
+          price: formData.price,
+        };
+
         const { error } = await supabase
           .from("shipments")
-          .update({
-            tracking_number: formData.tracking_number,
-            vehicle_type: formData.vehicle_type,
-            shipping_type: formData.service_type,
-            status: formData.status,
-            estimated_pickup_date: formData.pickup_date || null,
-            estimated_delivery_date: formData.delivery_date || null,
-            price: formData.total_cost,
-          })
+          .update(updateData)
           .eq("id", editingShipment.id);
 
         if (error) throw error;

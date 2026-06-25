@@ -9,30 +9,15 @@ import { SEO } from "@/components/SEO";
 import { TrackingForm } from "@/components/TrackingForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { GetServerSideProps } from "next";
-
 import {
-  Truck,
-  Ship,
-  Plane,
-  Shield,
+  ShieldCheck,
   Clock,
-  Globe,
-  CheckCircle2,
-  Star,
-  Award,
-  Users,
-  Package,
   TrendingUp,
-  ChevronRight,
-  Phone,
-  MapPin,
+  CheckCircle2,
+  Package,
+  Globe,
+  Award,
 } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
 // Dynamically import heavy sections to reduce build memory
 const HeroSection = dynamic(() => import("@/components/home/HeroSection").then(mod => ({ default: mod.HeroSection })), { ssr: true });
@@ -64,7 +49,7 @@ export default function Home() {
             <div className="container mx-auto px-4">
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                 <div className="flex flex-col items-center text-center p-4">
-                  <Shield className="h-10 w-10 text-primary mb-2" />
+                  <ShieldCheck className="h-10 w-10 text-primary mb-2" />
                   <p className="text-sm font-medium">{t("trust.licensed")}</p>
                 </div>
                 <div className="flex flex-col items-center text-center p-4">
@@ -84,7 +69,7 @@ export default function Home() {
                   <p className="text-sm font-medium">{t("trust.excellence")}</p>
                 </div>
                 <div className="flex flex-col items-center text-center p-4">
-                  <Star className="h-10 w-10 text-primary mb-2" />
+                  <CheckCircle2 className="h-10 w-10 text-primary mb-2" />
                   <p className="text-sm font-medium">{t("trust.service")}</p>
                 </div>
               </div>
@@ -232,7 +217,7 @@ export default function Home() {
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <Card className="p-6 border-border hover:border-primary transition-all">
-                  <Truck className="h-10 w-10 text-primary mb-4" />
+                  <Package className="h-10 w-10 text-primary mb-4" />
                   <h3 className="text-xl font-bold mb-2">{t("service.auto.title")}</h3>
                   <p className="text-muted-foreground mb-4">
                     {t("service.auto.desc")}
@@ -245,7 +230,7 @@ export default function Home() {
                 </Card>
 
                 <Card className="p-6 border-border hover:border-primary transition-all">
-                  <Ship className="h-10 w-10 text-primary mb-4" />
+                  <Package className="h-10 w-10 text-primary mb-4" />
                   <h3 className="text-xl font-bold mb-2">{t("service.international.title")}</h3>
                   <p className="text-muted-foreground mb-4">
                     {t("service.international.desc")}
@@ -271,7 +256,7 @@ export default function Home() {
                 </Card>
 
                 <Card className="p-6 border-border hover:border-primary transition-all">
-                  <Plane className="h-10 w-10 text-primary mb-4" />
+                  <Package className="h-10 w-10 text-primary mb-4" />
                   <h3 className="text-xl font-bold mb-2">{t("service.motorcycle.title")}</h3>
                   <p className="text-muted-foreground mb-4">
                     {t("service.motorcycle.desc")}
@@ -284,7 +269,7 @@ export default function Home() {
                 </Card>
 
                 <Card className="p-6 border-border hover:border-primary transition-all">
-                  <Shield className="h-10 w-10 text-primary mb-4" />
+                  <Package className="h-10 w-10 text-primary mb-4" />
                   <h3 className="text-xl font-bold mb-2">{t("service.enclosed.title")}</h3>
                   <p className="text-muted-foreground mb-4">
                     {t("service.enclosed.desc")}

@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import Image from "next/image";
 import { Shield, MapPin, Truck, Clock, TrendingUp } from "lucide-react";
 
 export function ExcellenceSection() {
@@ -7,11 +8,14 @@ export function ExcellenceSection() {
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12 items-center mb-12">
           <div>
-            <img
-              src="/hero-driver.jpg"
-              alt="Professional driver"
-              className="w-full rounded-lg shadow-lg"
-            />
+            <div className="relative h-64 rounded-lg overflow-hidden mb-4">
+              <Image
+                src="/warehouse-operations.jpg"
+                alt="Warehouse Operations"
+                fill
+                className="object-cover"
+              />
+            </div>
           </div>
           <div>
             <p className="text-sm font-medium text-primary mb-2 uppercase tracking-wider">WHY GO CARGO</p>

@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import type { GetServerSideProps } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import type { Database } from "@/integrations/supabase/database.types";
+import { Eye, CheckCircle2, XCircle, Clock, Trash2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -69,7 +70,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
 function AdminQuotesContent() {
   const router = useRouter();
-  const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [adminName, setAdminName] = useState("");
   const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
@@ -167,6 +167,51 @@ function AdminQuotesContent() {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleApprove = async (id: string) => {
+    const { error } = await supabase
+      .from("quotes")
+      .update({ status: "approved" })
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to approve quote",
+        variant: "destructive",
+      });
+      return;
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    const { error } = await supabase
+      .from("quotes")
+      .update({ status: "rejected" })
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to reject quote",
+        variant: "destructive",
+      });
+      return;
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("quotes").delete().eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete quote",
+        variant: "destructive",
+      });
+      return;
     }
   };
 

@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -29,32 +30,21 @@ export default function Blog() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const fetchPosts = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("published", true)
+      .order("published_at", { ascending: false });
+
+    if (data && !error) {
+      setPosts(data);
+    }
+  }, []);
+
   useEffect(() => {
     fetchPosts();
-  }, [selectedCategory]);
-
-  const fetchPosts = async () => {
-    setLoading(true);
-    try {
-      let query = supabase
-        .from("blog_posts")
-        .select("id, title, slug, excerpt, category, featured_image, published_at, seo_title, seo_description")
-        .eq("published", true)
-        .order("published_at", { ascending: false });
-
-      if (selectedCategory) {
-        query = query.eq("category", selectedCategory);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      setPosts(data || []);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchPosts]);
 
   const filteredPosts = posts.filter(post =>
     post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -132,15 +122,14 @@ export default function Blog() {
                   {filteredPosts.map((post) => (
                     <Link key={post.id} href={`/blog/${post.slug}`}>
                       <Card className="h-full hover:border-primary/50 transition-colors group cursor-pointer border-border overflow-hidden">
-                        {post.featured_image && (
-                          <div className="h-48 bg-muted overflow-hidden">
-                            <img
-                              src={post.featured_image}
-                              alt={post.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          </div>
-                        )}
+                        <div className="relative h-48 overflow-hidden rounded-t-lg">
+                          <Image
+                            src={post.featured_image || "/truck-highway.jpg"}
+                            alt={post.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
                         <div className="p-6">
                           <div className="flex items-center gap-2 mb-3">
                             <Badge variant="outline" className="font-mono text-xs">

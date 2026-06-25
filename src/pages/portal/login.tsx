@@ -1,21 +1,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import type { GetServerSideProps } from "next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { SEO } from "@/components/SEO";
-import { authService } from "@/services/authService";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, LogIn, ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { LogIn, Mail, Lock } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -49,11 +45,14 @@ export default function Login() {
         router.push("/portal/dashboard");
       }
     } catch (error: any) {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
     } finally {
       setLoading(false);
     }
@@ -66,8 +65,6 @@ export default function Login() {
         description="Sign in to your Go Cargo Logistics account to track shipments and manage your profile."
       />
       <div className="min-h-screen flex flex-col">
-        <Header />
-        
         <main className="flex-1 py-20">
           <div className="container max-w-md">
             <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8">
@@ -144,8 +141,6 @@ export default function Login() {
             </Card>
           </div>
         </main>
-
-        <Footer />
       </div>
     </>
   );

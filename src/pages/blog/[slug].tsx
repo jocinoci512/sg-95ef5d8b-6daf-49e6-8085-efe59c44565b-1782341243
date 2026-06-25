@@ -1,15 +1,14 @@
-import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import Link from "next/link";
+import Image from "next/image";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import type { GetServerSideProps } from "next";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Clock, ArrowLeft, Loader2 } from "lucide-react";
+import { Calendar, Clock, User, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface BlogPost {
   id: string;
@@ -144,15 +143,15 @@ export default function BlogPost() {
               </Button>
             </Link>
 
-            {post.featured_image && (
-              <div className="mb-8 rounded-lg overflow-hidden border border-border">
-                <img
-                  src={post.featured_image}
-                  alt={post.title}
-                  className="w-full h-[400px] object-cover"
-                />
-              </div>
-            )}
+            <div className="relative h-96 rounded-lg overflow-hidden mb-8">
+              <Image
+                src={post.featured_image || "/truck-highway.jpg"}
+                alt={post.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
 
             <div className="mb-8">
               <Badge variant="outline" className="font-mono mb-4">

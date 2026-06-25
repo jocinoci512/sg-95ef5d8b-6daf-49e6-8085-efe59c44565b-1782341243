@@ -1,21 +1,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import type { GetServerSideProps } from "next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { SEO } from "@/components/SEO";
-import { authService } from "@/services/authService";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, UserPlus, ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { UserPlus, Mail, Lock, User, Phone } from "lucide-react";
 
 export default function Signup() {
   const router = useRouter();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -66,6 +62,14 @@ export default function Signup() {
 
       router.push("/portal/login");
     } catch (error: any) {
+      if (signUpError) {
+        toast({
+          title: "Signup Failed",
+          description: signUpError.message,
+          variant: "destructive",
+        });
+        return;
+      }
       toast({
         title: "Signup failed",
         description: error.message,
@@ -83,8 +87,6 @@ export default function Signup() {
         description="Create your Go Cargo Logistics customer account to track shipments and manage your transportation needs."
       />
       <div className="min-h-screen flex flex-col">
-        <Header />
-        
         <main className="flex-1 py-20">
           <div className="container max-w-md">
             <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8">
@@ -194,8 +196,6 @@ export default function Signup() {
             </Card>
           </div>
         </main>
-
-        <Footer />
       </div>
     </>
   );

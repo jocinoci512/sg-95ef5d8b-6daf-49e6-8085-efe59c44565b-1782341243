@@ -10,14 +10,17 @@ import Link from "next/link";
 import type { GetServerSideProps } from "next";
 import {
   Truck,
+  Package,
   Shield,
+  Globe,
+  Lock,
+  CheckCircle2,
+  TrendingUp,
+  MapPin,
   Bike,
   Plane,
-  Globe,
   Building2,
-  Package,
   Container,
-  CheckCircle2,
   ArrowRight,
   Search
 } from "lucide-react";

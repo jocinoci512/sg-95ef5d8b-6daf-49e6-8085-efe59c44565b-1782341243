@@ -1,33 +1,23 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import type { GetServerSideProps } from "next";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import type { GetServerSideProps } from "next";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Truck, LogOut, Menu, X, Users, Package, Clock, CheckCircle2, FileText, TrendingUp, LayoutDashboard } from "lucide-react";
+import {
+  Package,
+  DollarSign,
+  TrendingUp,
+  Clock,
+  Eye,
+  Edit,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-interface Stats {
-  totalCustomers: number;
-  totalShipments: number;
-  activeShipments: number;
-  deliveredShipments: number;
-  pendingQuotes: number;
-}
-
-interface RecentActivity {
-  id: string;
-  type: "shipment" | "quote" | "customer";
-  title: string;
-  description: string;
-  time: string;
-}
 
 interface VolumeData {
   date: string;
@@ -67,7 +57,6 @@ function AdminDashboardContent() {
     highestDay: 0,
     lowestDay: 0,
   });
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
