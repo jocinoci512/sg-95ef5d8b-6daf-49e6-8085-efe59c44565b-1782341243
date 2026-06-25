@@ -492,6 +492,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      auth_uid_cached: { Args: never; Returns: string }
       generate_tracking_number: { Args: never; Returns: string }
       is_admin: { Args: never; Returns: boolean }
     }
