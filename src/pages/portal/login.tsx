@@ -43,22 +43,57 @@ export default function Login() {
       }
 
       if (data.user) {
-        const { data: profile } = await supabase
+        // Log activity
+        await supabase.from("activity_logs").insert({
+          user_id: data.user.id,
+          action: "login",
+          details: { email: data.user.email },
+        });
+
+        // Get user profile and role
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("role")
+          .select("role, full_name, is_active")
           .eq("id", data.user.id)
           .single();
 
-        if (profile?.role === "admin") {
+        if (profileError) {
+          console.error("Profile fetch error:", profileError);
+          toast({
+            title: "Error",
+            description: "Unable to load user profile",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (!profile?.is_active) {
+          await supabase.auth.signOut();
+          toast({
+            title: "Account Inactive",
+            description: "Your account has been deactivated. Please contact support.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "Welcome back!",
+          description: `Signed in as ${profile?.full_name || formData.email}`,
+        });
+
+        // Redirect based on role
+        if (profile?.role === "admin" || profile?.role === "super_admin") {
           router.push("/admin/dashboard");
         } else {
           router.push("/portal/dashboard");
         }
       }
     } catch (error: any) {
+      console.error("Login error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
