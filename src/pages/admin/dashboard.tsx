@@ -5,6 +5,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SEO } from "@/components/SEO";
+import { useToast } from "@/hooks/use-toast";
 import type { GetServerSideProps } from "next";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -16,6 +18,13 @@ import {
   Edit,
   CheckCircle2,
   AlertCircle,
+  Truck,
+  LogOut,
+  X,
+  Menu,
+  Users,
+  FileText,
+  LayoutDashboard,
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -57,6 +66,12 @@ function AdminDashboardContent() {
     highestDay: 0,
     lowestDay: 0,
   });
+  const [recentActivity, setRecentActivity] = useState<Array<{
+    id: string;
+    title: string;
+    description: string;
+    time: string;
+  }>>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

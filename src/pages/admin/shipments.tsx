@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/database.types";
 import { ShipmentFilters } from "@/components/admin/ShipmentFilters";
 import { ShipmentTable } from "@/components/admin/ShipmentTable";
 import { ShipmentDialog } from "@/components/admin/ShipmentDialog";
@@ -39,15 +40,17 @@ export default function AdminShipmentsPage() {
   const [formData, setFormData] = useState({
     tracking_number: "",
     customer_name: "",
-    origin: "",
-    destination: "",
+    pickup_city: "",
+    delivery_city: "",
     vehicle_type: "",
-    service_type: "open_transport",
-    status: "pending",
-    pickup_date: "",
-    delivery_date: "",
-    total_cost: 0,
+    shipping_type: "open_carrier",
+    status: "pending_pickup",
+    estimated_pickup_date: "",
+    estimated_delivery_date: "",
+    price: 0,
   });
+
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchShipments();
@@ -57,7 +60,7 @@ export default function AdminShipmentsPage() {
     filterShipments();
   }, [searchQuery, statusFilter, shipments, filterShipments]);
 
-  const fetchShipments = async () => {
+  const fetchShipments = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("shipments")
@@ -96,9 +99,9 @@ export default function AdminShipmentsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setShipments, setLoading, toast]);
 
-  const filterShipments = () => {
+  const filterShipments = useCallback(() => {
     let filtered = [...shipments];
 
     if (searchQuery) {
@@ -116,7 +119,7 @@ export default function AdminShipmentsPage() {
     }
 
     setFilteredShipments(filtered);
-  };
+  }, [searchQuery, statusFilter, shipments]);
 
   const handleCreate = () => {
     setEditingShipment(null);

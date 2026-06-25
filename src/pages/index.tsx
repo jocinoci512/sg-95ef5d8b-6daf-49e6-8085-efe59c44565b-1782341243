@@ -17,6 +17,8 @@ import {
   Package,
   Globe,
   Award,
+  ChevronRight,
+  Phone,
 } from "lucide-react";
 
 // Dynamically import heavy sections to reduce build memory
