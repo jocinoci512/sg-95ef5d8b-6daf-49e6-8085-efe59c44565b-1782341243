@@ -160,16 +160,21 @@ export class ShipmentService {
     shipmentId: string,
     event: {
       event_type: string;
+      event_title: string;
       location: string;
-      description?: string;
-      event_date: string;
+      event_description?: string;
+      event_timestamp: string;
     }
   ) {
     const { data, error } = await supabase
       .from("shipment_timeline")
       .insert({
         shipment_id: shipmentId,
-        ...event,
+        event_type: event.event_type,
+        event_title: event.event_title,
+        location: event.location,
+        event_description: event.event_description,
+        event_timestamp: event.event_timestamp,
       })
       .select()
       .single();
@@ -221,8 +226,8 @@ export class ShipmentService {
       .insert({
         shipment_id: shipmentId,
         document_type: documentType,
-        file_name: file.name,
-        file_url: publicUrl,
+        document_name: file.name,
+        file_path: publicUrl,
         file_size: file.size,
       })
       .select()
@@ -264,7 +269,7 @@ export class ShipmentService {
       .from("shipment_notes")
       .insert({
         shipment_id: shipmentId,
-        note,
+        note_text: note,
         is_internal: isInternal,
         author_id: user.id,
       })
@@ -327,6 +332,16 @@ export class ShipmentService {
       destination_city: original.destination_city,
       destination_country: original.destination_country,
       shipping_cost: original.shipping_cost,
+      pickup_address: original.pickup_address,
+      pickup_city: original.pickup_city,
+      pickup_state: original.pickup_state,
+      pickup_zip: original.pickup_zip,
+      delivery_address: original.delivery_address,
+      delivery_city: original.delivery_city,
+      delivery_state: original.delivery_state,
+      delivery_zip: original.delivery_zip,
+      vehicle_type: original.vehicle_type,
+      carrier: original.carrier,
     };
 
     return await this.createShipment(duplicate);

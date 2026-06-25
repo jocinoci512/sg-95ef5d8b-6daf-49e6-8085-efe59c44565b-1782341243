@@ -516,7 +516,7 @@ export type Database = {
           current_lat: number | null
           current_lng: number | null
           current_location: string | null
-          customer_id: string
+          customer_id: string | null
           delivery_address: string
           delivery_city: string
           delivery_lat: number | null
@@ -579,7 +579,7 @@ export type Database = {
           current_lat?: number | null
           current_lng?: number | null
           current_location?: string | null
-          customer_id: string
+          customer_id?: string | null
           delivery_address: string
           delivery_city: string
           delivery_lat?: number | null
@@ -642,7 +642,7 @@ export type Database = {
           current_lat?: number | null
           current_lng?: number | null
           current_location?: string | null
-          customer_id?: string
+          customer_id?: string | null
           delivery_address?: string
           delivery_city?: string
           delivery_lat?: number | null
