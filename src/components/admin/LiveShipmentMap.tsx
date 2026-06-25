@@ -68,15 +68,16 @@ export function LiveShipmentMap({
       setLoading(true);
       setError(null);
 
-      // Load Google Maps
+      // Load Google Maps using the correct API
       const loader = new Loader({
         apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
         version: "weekly",
-        libraries: ["places", "geometry"],
       });
 
-      await loader.load();
-
+      // Use importLibrary method
+      const { Map } = await loader.importLibrary("maps");
+      const { Marker, Polyline } = await loader.importLibrary("marker");
+      
       // Calculate route
       const route = await MapService.calculateRoute(pickupAddress, deliveryAddress);
 
@@ -87,67 +88,31 @@ export function LiveShipmentMap({
       setRouteData(route);
 
       // Initialize map
-      if (mapRef.current && typeof google !== "undefined") {
-        const map = new google.maps.Map(mapRef.current, {
+      if (mapRef.current) {
+        const map = new Map(mapRef.current, {
           center: route.pickupCoords,
           zoom: 6,
-          styles: [
-            {
-              featureType: "all",
-              elementType: "geometry",
-              stylers: [{ color: "#1a1a2e" }],
-            },
-            {
-              featureType: "water",
-              elementType: "geometry",
-              stylers: [{ color: "#0f172a" }],
-            },
-            {
-              featureType: "road",
-              elementType: "geometry",
-              stylers: [{ color: "#2d2d44" }],
-            },
-            {
-              featureType: "poi",
-              stylers: [{ visibility: "off" }],
-            },
-          ],
+          mapId: "gocargo-shipment-map",
         });
 
         googleMapRef.current = map;
 
         // Add pickup marker
-        new google.maps.Marker({
+        const pickupMarker = new Marker({
           position: route.pickupCoords,
           map,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 10,
-            fillColor: "#F59E0B",
-            fillOpacity: 1,
-            strokeColor: "#fff",
-            strokeWeight: 2,
-          },
           title: "Pickup Location",
         });
 
         // Add delivery marker
-        new google.maps.Marker({
+        const deliveryMarker = new Marker({
           position: route.deliveryCoords,
           map,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 10,
-            fillColor: "#10B981",
-            fillOpacity: 1,
-            strokeColor: "#fff",
-            strokeWeight: 2,
-          },
           title: "Delivery Location",
         });
 
         // Draw route
-        const routePath = new google.maps.Polyline({
+        const routePath = new Polyline({
           path: route.route,
           geodesic: true,
           strokeColor: "#FB923C",
@@ -163,13 +128,9 @@ export function LiveShipmentMap({
         const initialProgress = getProgressByStatus(currentStatus);
         const currentPos = MapService.calculateCurrentPosition(route.route, initialProgress);
 
-        const vehicleMarker = new google.maps.Marker({
+        const vehicleMarker = new Marker({
           position: currentPos,
           map,
-          icon: {
-            url: vehicleIcon,
-            scaledSize: new google.maps.Size(40, 40),
-          },
           title: `Shipment ${trackingNumber}`,
         });
 
