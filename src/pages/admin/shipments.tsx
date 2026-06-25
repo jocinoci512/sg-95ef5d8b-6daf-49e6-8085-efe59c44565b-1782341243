@@ -227,6 +227,7 @@ export default function AdminShipmentsPage() {
         destination_country: formData.destination_country,
         shipping_cost: parseFloat(formData.shipping_cost) || null,
         carrier: formData.carrier,
+        vehicle_type: null,
       });
 
       toast({
@@ -271,7 +272,7 @@ export default function AdminShipmentsPage() {
   const handleArchiveShipment = async (id: string) => {
     setActionLoading(true);
     try {
-      await ShipmentService.updateShipmentStatus(id, "archived");
+      await ShipmentService.updateShipment(id, { status: "archived", archived_at: new Date().toISOString() });
       toast({
         title: "Success",
         description: "Shipment archived successfully",
@@ -291,7 +292,7 @@ export default function AdminShipmentsPage() {
   const handleHoldShipment = async (id: string) => {
     setActionLoading(true);
     try {
-      await ShipmentService.updateShipmentStatus(id, "on_hold");
+      await ShipmentService.updateShipment(id, { status: "on_hold" });
       toast({
         title: "Success",
         description: "Shipment put on hold",
@@ -311,7 +312,7 @@ export default function AdminShipmentsPage() {
   const handleResumeShipment = async (id: string) => {
     setActionLoading(true);
     try {
-      await ShipmentService.updateShipmentStatus(id, "processing");
+      await ShipmentService.updateShipment(id, { status: "processing" });
       toast({
         title: "Success",
         description: "Shipment resumed",
@@ -331,7 +332,7 @@ export default function AdminShipmentsPage() {
   const handleCancelShipment = async (id: string) => {
     setActionLoading(true);
     try {
-      await ShipmentService.updateShipmentStatus(id, "cancelled");
+      await ShipmentService.updateShipment(id, { status: "cancelled" });
       toast({
         title: "Success",
         description: "Shipment cancelled",
