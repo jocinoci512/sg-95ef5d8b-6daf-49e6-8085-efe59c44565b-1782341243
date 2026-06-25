@@ -9,7 +9,7 @@ import { SEO } from "@/components/SEO";
 import type { GetServerSideProps } from "next";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/database.types";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import {
   Package,
   TrendingUp,

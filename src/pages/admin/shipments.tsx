@@ -52,14 +52,6 @@ export default function AdminShipmentsPage() {
 
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchShipments();
-  }, [fetchShipments]);
-
-  useEffect(() => {
-    filterShipments();
-  }, [searchQuery, statusFilter, shipments, filterShipments]);
-
   const fetchShipments = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -99,7 +91,7 @@ export default function AdminShipmentsPage() {
     } finally {
       setLoading(false);
     }
-  }, [setShipments, setLoading, toast]);
+  }, [toast]);
 
   const filterShipments = useCallback(() => {
     let filtered = [...shipments];
@@ -121,19 +113,27 @@ export default function AdminShipmentsPage() {
     setFilteredShipments(filtered);
   }, [searchQuery, statusFilter, shipments]);
 
+  useEffect(() => {
+    fetchShipments();
+  }, [fetchShipments]);
+
+  useEffect(() => {
+    filterShipments();
+  }, [searchQuery, statusFilter, shipments, filterShipments]);
+
   const handleCreate = () => {
     setEditingShipment(null);
     setFormData({
       tracking_number: `GCL${Date.now().toString().slice(-8)}`,
       customer_name: "",
-      origin: "",
-      destination: "",
+      pickup_city: "",
+      delivery_city: "",
       vehicle_type: "",
-      service_type: "open_carrier",
+      shipping_type: "open_carrier",
       status: "pending_pickup",
-      pickup_date: "",
-      delivery_date: "",
-      total_cost: 0,
+      estimated_pickup_date: "",
+      estimated_delivery_date: "",
+      price: 0,
     });
     setIsDialogOpen(true);
   };
@@ -143,14 +143,14 @@ export default function AdminShipmentsPage() {
     setFormData({
       tracking_number: shipment.tracking_number,
       customer_name: shipment.customer_name,
-      origin: shipment.origin,
-      destination: shipment.destination,
+      pickup_city: shipment.origin.split(",")[0]?.trim() || "",
+      delivery_city: shipment.destination.split(",")[0]?.trim() || "",
       vehicle_type: shipment.vehicle_type,
-      service_type: shipment.service_type,
+      shipping_type: shipment.service_type,
       status: shipment.status,
-      pickup_date: shipment.pickup_date.split("T")[0],
-      delivery_date: shipment.delivery_date?.split("T")[0] || "",
-      total_cost: shipment.total_cost,
+      estimated_pickup_date: shipment.pickup_date.split("T")[0],
+      estimated_delivery_date: shipment.delivery_date?.split("T")[0] || "",
+      price: shipment.total_cost,
     });
     setIsDialogOpen(true);
   };
@@ -201,19 +201,19 @@ export default function AdminShipmentsPage() {
           tracking_number: formData.tracking_number,
           customer_id: profile.id,
           pickup_address: "TBD",
-          pickup_city: formData.origin.split(",")[0]?.trim() || "Unknown",
-          pickup_state: formData.origin.split(",")[1]?.trim() || "Unknown",
+          pickup_city: formData.pickup_city,
+          pickup_state: "Unknown",
           pickup_zip: "00000",
           delivery_address: "TBD",
-          delivery_city: formData.destination.split(",")[0]?.trim() || "Unknown",
-          delivery_state: formData.destination.split(",")[1]?.trim() || "Unknown",
+          delivery_city: formData.delivery_city,
+          delivery_state: "Unknown",
           delivery_zip: "00000",
           vehicle_type: formData.vehicle_type,
-          shipping_type: formData.service_type,
+          shipping_type: formData.shipping_type,
           status: formData.status,
-          estimated_pickup_date: formData.pickup_date || null,
-          estimated_delivery_date: formData.delivery_date || null,
-          price: formData.total_cost,
+          estimated_pickup_date: formData.estimated_pickup_date || null,
+          estimated_delivery_date: formData.estimated_delivery_date || null,
+          price: formData.price,
         });
 
         if (error) throw error;
