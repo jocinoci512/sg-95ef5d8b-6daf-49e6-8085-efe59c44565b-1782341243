@@ -1,110 +1,108 @@
-# Admin User Setup Instructions
+# GoCargo Logistics - Admin Account Setup
 
-This document explains how to create the initial admin user for the Go Cargo Logistics platform.
+## Quick Setup
 
-## Admin Credentials
+### 1. Create Admin Account
 
-- **Email:** support@gocargologisticsus.com
-- **Password:** 664610716Joel@
-- **Role:** super_admin
-
-## Setup Method 1: Automatic Migration (Recommended)
-
-The migration file `supabase/migrations/20260624045400_create_admin_user.sql` has been created and will run automatically when you push to Supabase.
-
-**To apply the migration:**
-
-1. Make sure you're linked to your Supabase project:
-   ```bash
-   npx supabase link --project-ref your-project-ref
-   ```
-
-2. Push the migration:
-   ```bash
-   npx supabase db push
-   ```
-
-The admin user will be created automatically with super_admin privileges.
-
-## Setup Method 2: Manual SQL Execution
-
-If you prefer to create the admin user manually:
-
-1. Go to your Supabase Dashboard
-2. Navigate to **SQL Editor**
-3. Create a new query
-4. Copy and paste the contents of `supabase/migrations/20260624045400_create_admin_user.sql`
-5. Click **Run** to execute
-
-## Setup Method 3: Using Supabase Dashboard
-
-Alternatively, you can create the user through the Supabase Authentication UI:
-
-1. Go to **Authentication** → **Users** in Supabase Dashboard
-2. Click **Add User**
-3. Enter:
-   - Email: support@gocargologisticsus.com
-   - Password: 664610716Joel@
-   - Auto Confirm User: ✓ (checked)
-4. Click **Create User**
-5. Then run this SQL in the SQL Editor to set the admin role:
-
-```sql
-UPDATE profiles 
-SET role = 'super_admin', 
-    full_name = 'Go Cargo Admin',
-    is_active = true
-WHERE email = 'support@gocargologisticsus.com';
+**Option A: Using the Setup Script (Recommended)**
+```bash
+node scripts/seed-admin.js
 ```
 
-## Logging In
+This will automatically create the admin account with:
+- Email: info@gocargologistics.com
+- Password: 664610716Joel@
+- Role: super_admin (assigned automatically via database trigger)
 
-After creating the admin user:
+**Option B: Via Supabase Dashboard**
+1. Open your Supabase project dashboard
+2. Go to Authentication → Users
+3. Click "Add User"
+4. Enter:
+   - Email: info@gocargologistics.com
+   - Password: 664610716Joel@
+   - Auto Confirm: ON
+5. Click "Create User"
+6. The profile with super_admin role will be created automatically
 
-1. Visit: `https://your-site.com/portal/login`
-2. Enter the credentials above
-3. You'll be logged in as a super admin
-4. Access the admin dashboard at: `https://your-site.com/admin/dashboard`
+**Option C: Via Signup Page**
+1. Navigate to: http://localhost:3000/portal/signup
+2. Fill in:
+   - Email: info@gocargologistics.com
+   - Password: 664610716Joel@
+   - Full Name: GoCargo Administrator
+3. Submit the form
+4. The system automatically assigns super_admin role to this email
 
-## Admin Capabilities
+### 2. Verify Admin Access
 
-As a super_admin, you have full access to:
+1. Go to: http://localhost:3000/portal/login
+2. Log in with:
+   - Email: info@gocargologistics.com
+   - Password: 664610716Joel@
+3. You should be redirected to: /admin/dashboard
 
-- **Dashboard:** `/admin/dashboard` - Overview and analytics
-- **Shipments:** `/admin/shipments` - Manage all shipments
-- **Quotes:** `/admin/quotes` - Manage quote requests
-- **Customers:** View and manage all customer accounts
-- **Content:** Manage blog posts, testimonials, and inquiries
+### 3. Admin Dashboard Features
+
+The admin dashboard provides full control over:
+
+✅ **Shipment Management**
+- Create, edit, delete, duplicate shipments
+- Update shipment status and location
+- Bulk operations (hold, cancel, archive)
+- Real-time tracking
+
+✅ **Customer Management**
+- View all customers
+- Manage customer profiles
+- Access customer shipment history
+
+✅ **Quote Management**
+- Review quote requests
+- Convert quotes to shipments
+- Send quote responses
+
+✅ **Analytics & Reports**
+- Dashboard statistics
+- Revenue tracking
+- Delivery performance metrics
+- Shipment trends
+
+✅ **Document Management**
+- Upload shipping labels
+- Attach customs documents
+- Proof of delivery photos
+- Document history
+
+✅ **Activity Logs**
+- Complete audit trail
+- User action history
+- System events
+
+## Database Trigger
+
+The system includes an automatic trigger that assigns the super_admin role to `info@gocargologistics.com` when the account is created. This ensures proper permissions without manual intervention.
 
 ## Security Notes
 
-⚠️ **Important:**
-- Change this password immediately after first login
-- Store credentials securely (password manager recommended)
-- Consider enabling 2FA in Supabase Dashboard under Authentication settings
-- This password contains special characters - make sure to copy it exactly
-
-## Role Hierarchy
-
-The system supports three role levels:
-1. **customer** - Regular customers (default for signups)
-2. **admin** - Staff members with management access
-3. **super_admin** - Full system access (your account)
+- The admin account has full access to all platform features
+- All actions are logged in the activity_logs table
+- Session management includes automatic timeout after inactivity
+- Password must be changed from the initial setup password in production
+- Consider enabling 2FA for the admin account in production
 
 ## Troubleshooting
 
-**Can't log in?**
-- Verify the user exists: Check Supabase Dashboard → Authentication → Users
-- Verify the role is set: Run this query in SQL Editor:
-  ```sql
-  SELECT id, email, role, is_active FROM profiles WHERE email = 'support@gocargologisticsus.com';
-  ```
-- Expected result: role should be 'super_admin' and is_active should be true
+**Login fails with "Invalid credentials":**
+- Verify the account exists in Authentication → Users in Supabase Dashboard
+- Ensure the password is correct: 664610716Joel@
+- Check that the profile exists in the profiles table
 
-**403 Forbidden on admin pages?**
-- The RLS policies check for admin/super_admin roles
-- Make sure the profile role is correctly set to 'super_admin'
+**Redirected to customer portal instead of admin dashboard:**
+- Check the role in profiles table: `SELECT role FROM profiles WHERE email = 'info@gocargologistics.com';`
+- Should return 'super_admin'
+- If not, run: `UPDATE profiles SET role = 'super_admin' WHERE email = 'info@gocargologistics.com';`
 
-**Need to create additional admin users?**
-- Use the same process but keep the `create_admin_user` function
-- Or manually set role='admin' in the profiles table after user signup
+**"Profile not found" error:**
+- The database trigger should create the profile automatically
+- Manually create: `INSERT INTO profiles (id, email, full_name, role, is_active) SELECT id, email, 'GoCargo Administrator', 'super_admin', true FROM auth.users WHERE email = 'info@gocargologistics.com';`

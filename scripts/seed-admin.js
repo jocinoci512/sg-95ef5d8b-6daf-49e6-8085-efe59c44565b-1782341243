@@ -1,145 +1,85 @@
+// Script to create admin account via Supabase Auth API
+// Run with: node scripts/seed-admin.js
+
 const { createClient } = require('@supabase/supabase-js');
-const fs = require('fs');
-const path = require('path');
+require('dotenv').config({ path: '.env.local' });
 
-// Read .env.local file
-function loadEnv() {
-  const envPath = path.join(__dirname, '..', '.env.local');
-  
-  if (!fs.existsSync(envPath)) {
-    console.error('ERROR: .env.local file not found');
-    process.exit(1);
-  }
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  const envContent = fs.readFileSync(envPath, 'utf8');
-  const env = {};
-  
-  envContent.split('\n').forEach(line => {
-    const match = line.match(/^([^=:#]+?)\s*=\s*(.*)$/);
-    if (match) {
-      const key = match[1].trim();
-      const value = match[2].trim().replace(/^["']|["']$/g, '');
-      env[key] = value;
-    }
-  });
-  
-  return env;
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('Missing required environment variables');
+  console.error('NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl ? 'Set' : 'Missing');
+  console.error('SUPABASE_SERVICE_ROLE_KEY:', supabaseServiceKey ? 'Set' : 'Missing');
+  process.exit(1);
 }
 
-async function createAdminUser() {
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
+
+async function createAdminAccount() {
+  console.log('Creating admin account...');
+  
+  const email = 'info@gocargologistics.com';
+  const password = '664610716Joel@';
+  
   try {
-    console.log('Loading environment variables...');
-    const env = loadEnv();
-
-    const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      console.error('ERROR: Missing Supabase credentials in .env.local');
-      console.error('Required: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
-      process.exit(1);
-    }
-
-    console.log('Connecting to Supabase...');
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    });
-
-    const adminEmail = 'support@gocargologisticsus.com';
-    const adminPassword = '664610716Joel@';
-
-    console.log('\nCreating admin user:', adminEmail);
+    // Check if user already exists
+    const { data: existingUsers } = await supabase.auth.admin.listUsers();
+    const userExists = existingUsers?.users?.some(u => u.email === email);
     
-    // Create user with Supabase Auth Admin API
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email: adminEmail,
-      password: adminPassword,
-      email_confirm: true,
-      user_metadata: {
-        full_name: 'Go Cargo Admin'
-      }
-    });
-
-    if (authError) {
-      if (authError.message.includes('already registered')) {
-        console.log('⚠️  User already exists, updating role instead...');
+    if (userExists) {
+      console.log('✅ Admin account already exists');
+      
+      // Ensure profile has super_admin role
+      const existingUser = existingUsers.users.find(u => u.email === email);
+      if (existingUser) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ role: 'super_admin', is_active: true })
+          .eq('id', existingUser.id);
         
-        // Get existing user
-        const { data: users } = await supabase.auth.admin.listUsers();
-        const existingUser = users.users.find(u => u.email === adminEmail);
-        
-        if (existingUser) {
-          // Update profile to super_admin
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .update({ 
-              role: 'super_admin',
-              full_name: 'Go Cargo Admin',
-              is_active: true
-            })
-            .eq('id', existingUser.id);
-
-          if (profileError) {
-            console.error('❌ Profile update error:', profileError.message);
-            process.exit(1);
-          }
-
-          console.log('✅ Existing user updated to super_admin');
-          console.log('\n📋 Login Credentials:');
-          console.log('   Email:', adminEmail);
-          console.log('   Password:', adminPassword);
-          console.log('   Role: super_admin');
-          console.log('\n🔗 Login at: /portal/login');
-          console.log('🔗 Admin Dashboard: /admin/dashboard');
-          return;
+        if (updateError) {
+          console.error('Error updating profile:', updateError);
+        } else {
+          console.log('✅ Admin profile updated with super_admin role');
         }
       }
       
-      console.error('❌ Auth error:', authError.message);
+      return;
+    }
+    
+    // Create new user
+    const { data, error } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: 'GoCargo Administrator'
+      }
+    });
+    
+    if (error) {
+      console.error('❌ Error creating admin account:', error.message);
       process.exit(1);
     }
-
-    console.log('✅ User created in auth.users');
-    console.log('   User ID:', authData.user.id);
-
-    // Update profile to super_admin role
-    console.log('\nUpdating profile to super_admin...');
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({ 
-        role: 'super_admin',
-        full_name: 'Go Cargo Admin',
-        is_active: true
-      })
-      .eq('id', authData.user.id);
-
-    if (profileError) {
-      console.error('❌ Profile update error:', profileError.message);
-      process.exit(1);
-    }
-
-    console.log('✅ Profile updated to super_admin');
     
-    console.log('\n╔══════════════════════════════════════════════╗');
-    console.log('║          ADMIN ACCOUNT CREATED!              ║');
-    console.log('╚══════════════════════════════════════════════╝');
-    console.log('\n📋 Login Credentials:');
-    console.log('   Email:', adminEmail);
-    console.log('   Password:', adminPassword);
-    console.log('   Role: super_admin');
-    console.log('\n🔗 Access Points:');
-    console.log('   Login: /portal/login');
-    console.log('   Admin Dashboard: /admin/dashboard');
-    console.log('\n⚠️  IMPORTANT: Change this password after first login!');
-    console.log('');
+    console.log('✅ Admin account created successfully');
+    console.log('Email:', email);
+    console.log('User ID:', data.user.id);
+    console.log('Profile will be auto-created with super_admin role via trigger');
     
-  } catch (err) {
-    console.error('❌ Unexpected error:', err.message);
+  } catch (error) {
+    console.error('❌ Unexpected error:', error.message);
     process.exit(1);
   }
 }
 
-createAdminUser();
+createAdminAccount().then(() => {
+  console.log('\n✨ Setup complete! You can now log in at /portal/login');
+  process.exit(0);
+});
