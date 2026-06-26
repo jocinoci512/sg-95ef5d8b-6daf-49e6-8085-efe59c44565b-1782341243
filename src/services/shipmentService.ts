@@ -108,6 +108,13 @@ export class ShipmentService {
    * Update shipment
    */
   static async updateShipment(id: string, updates: ShipmentUpdate) {
+    // Get current shipment data
+    const { data: currentShipment } = await supabase
+      .from("shipments")
+      .select("status, tracking_number, receiver_email, customer_id")
+      .eq("id", id)
+      .single();
+
     const { data, error } = await supabase
       .from("shipments")
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -116,6 +123,23 @@ export class ShipmentService {
       .single();
 
     if (error) throw error;
+
+    // Send notification if status changed
+    if (updates.status && currentShipment && updates.status !== currentShipment.status) {
+      try {
+        const { NotificationService } = await import("./notificationService");
+        await NotificationService.sendStatusChangeEmail(
+          id,
+          updates.status,
+          currentShipment.receiver_email || "",
+          currentShipment.tracking_number
+        );
+      } catch (notifError) {
+        console.error("Notification error:", notifError);
+        // Don't fail the update if notification fails
+      }
+    }
+
     return data;
   }
 
