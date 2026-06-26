@@ -70,6 +70,45 @@ export default function Track() {
     }
   };
 
+  useEffect(() => {
+    if (shipment) {
+      // Subscribe to real-time updates
+      const channel = supabase
+        .channel(`shipment-${shipment.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "shipments",
+            filter: `id=eq.${shipment.id}`,
+          },
+          (payload) => {
+            if (payload.eventType === "UPDATE") {
+              setShipment(payload.new as any);
+            }
+          }
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "shipment_timeline",
+            filter: `shipment_id=eq.${shipment.id}`,
+          },
+          () => {
+            loadTimeline(shipment.id);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [shipment]);
+
   return (
     <>
       <SEO
