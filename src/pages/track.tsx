@@ -19,6 +19,20 @@ export default function Track() {
   const [shipment, setShipment] = useState<any>(null);
   const [trackingEvents, setTrackingEvents] = useState<any[]>([]);
 
+  const loadTimeline = async (shipmentId: string) => {
+    try {
+      const { data: eventsData } = await supabase
+        .from("tracking_events")
+        .select("*")
+        .eq("shipment_id", shipmentId)
+        .order("event_date", { ascending: false });
+
+      setTrackingEvents(eventsData || []);
+    } catch (error) {
+      console.error("Error loading timeline:", error);
+    }
+  };
+
   const handleTrack = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!trackingNumber.trim()) return;
